@@ -75,6 +75,10 @@ export default function ProductGrid() {
       isNew: product.specialTag === "new",
     }
   }
+  
+const formatSizes = (sizes: { size: number; quantity: number }[]): string =>
+  sizes.map(({ size }) => size).join("/");
+
 
   if (error) {
     return <div className="text-center py-10 text-red-500">Error: {error}</div>
@@ -101,12 +105,15 @@ export default function ProductGrid() {
                 </div>
               )}
             </div>
-            <div className="mt-4 flex justify-between">
+            <div className="mt-4 flex flex-col gap-2">
               <div>
                 <h3 className="text-sm font-medium text-gray-900">{product.name}</h3>
                 <p className="mt-1 text-sm text-gray-500">{product.category}</p>
               </div>
-              <p className="text-sm font-medium text-gray-900">ARS {product.price.toLocaleString()}</p>
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-medium text-gray-900">ARS {product.price.toLocaleString()}</p>
+                <p className="text-sm font-medium text-gray-900">Talles: {formatSizes(product.sizes)}</p>
+              </div>
             </div>
 
             {isInCart(product.id) ? (
