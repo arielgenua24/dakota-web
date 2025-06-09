@@ -3,12 +3,14 @@ import { Playfair_Display } from "next/font/google"
 import ProductGrid from "@/components/product-grid"
 import LocationSection from "@/components/location-section"
 import CategorySlider from "@/components/category-slider"
+import Navbar from "@/components/navbar"
 
 const playfair = Playfair_Display({ subsets: ["latin"] })
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-white">
+      <Navbar />
       {/* Hero Section */}
       <section className="relative h-[500px] w-full">
         <Image
