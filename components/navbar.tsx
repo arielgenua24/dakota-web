@@ -5,6 +5,7 @@ import Link from "next/link"
 import { ShoppingBag } from "lucide-react"
 import { useCart } from "@/hooks/use-cart"
 import { Playfair_Display } from "next/font/google"
+import Store from "../app/Store/page"
 
 const playfair = Playfair_Display({ subsets: ["latin"] })
 

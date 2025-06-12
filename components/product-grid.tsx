@@ -6,7 +6,7 @@ import ProductModal from "./product-modal"
 import { useCart } from "@/hooks/use-cart"
 import { useProducts, type Product } from "@/hooks/use-products"
 
-export default function ProductGrid() {
+export default function ProductGrid({ limit = 15 }: { limit?: number }) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const { items, addItem } = useCart()
@@ -86,7 +86,7 @@ const formatSizes = (sizes: { size: number; quantity: number }[]): string =>
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
-      {products.map((product) => {
+      {products.slice(0, limit).map((product) => {
         const cartProduct = convertToCartProduct(product)
 
         return (
