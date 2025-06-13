@@ -13,15 +13,18 @@ interface ProductModalProps {
 }
 
 export default function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
+  //*Selected sizes shows the structure of the sizes that the user selected and all the sizes that the user did not select*/
   const [selectedSizes, setSelectedSizes] = useState<{ [key: string]: number }>({})
   const [totalQuantity, setTotalQuantity] = useState(0)
   const [totalPrice, setTotalPrice] = useState(0)
+  const [useCurvePrice, setUseCurvePrice] = useState(false)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const { addItem, updateItem, items } = useCart()
 
   // Check if this product is already in cart to pre-fill selections
   useEffect(() => {
     const existingItem = items.find((item) => item.product.id === product.id)
+    console.log(existingItem)
     if (existingItem) {
       const sizes: { [key: string]: number } = {}
       existingItem.selectedSizes.forEach((s) => {
@@ -39,8 +42,29 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
       quantity += q
     })
     setTotalQuantity(quantity)
-    setTotalPrice(quantity * product.priceNumeric)
-  }, [selectedSizes, product.priceNumeric])
+
+    // Check if all available sizes have at least one item selected
+    const allSizesSelected =
+      product.sizes?.length > 0 &&
+      product.sizes.every((sizeOption) => {
+        const key = `${sizeOption.size}-${sizeOption.color}`
+        return (selectedSizes[key] || 0) >= 1
+      })
+
+    console.log(allSizesSelected) // Si elegi al menos un item de cada talla, es true. Funciona.
+    console.log(product.curvePrice) // Muestra el precio de la curva si existe. Funciona.
+    console.log(product)
+    const canUseCurvePrice = !!(allSizesSelected && product.curvePrice && parseFloat(product.curvePrice) > 0)
+    setUseCurvePrice(canUseCurvePrice)
+
+    const priceForCalculation = canUseCurvePrice && product.curvePrice ? parseFloat(product.curvePrice) : product.priceNumeric;
+    if (isNaN(priceForCalculation)) {
+      console.error("Error: priceForCalculation is NaN. curvePrice:", product.curvePrice, "priceNumeric:", product.priceNumeric);
+      setTotalPrice(0); // Default to 0 or handle error appropriately
+    } else {
+      setTotalPrice(quantity * priceForCalculation);
+    }
+  }, [selectedSizes, product])
 
   const handleQuantityChange = (size: number | string, color: string, change: number) => {
     const key = `${size}-${color}`
@@ -51,10 +75,11 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
       ...selectedSizes,
       [key]: newQuantity,
     }
+    console.log(selectedSizes)
 
-    if (newQuantity === 0) {
+    /*if (newQuantity === 0) {
       delete updatedSizes[key]
-    }
+    }*/
 
     setSelectedSizes(updatedSizes)
   }
@@ -202,6 +227,12 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
               </div>
 
               <div className="border-t border-gray-200 pt-4 mb-6">
+                <div className="flex justify-between mb-2">
+                  <span className="font-medium">{useCurvePrice ? "Precio por curva" : "Precio unitario"}</span>
+                  <span>
+                    ARS {(useCurvePrice && product.curvePrice ? product.curvePrice : product.priceNumeric).toLocaleString()}
+                  </span>
+                </div>
                 <div className="flex justify-between mb-2">
                   <span className="font-medium">Cantidad total</span>
                   <span>{totalQuantity}</span>

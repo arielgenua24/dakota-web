@@ -65,6 +65,7 @@ export default function ProductGrid({ limit = 15 }: { limit?: number }) {
       title: product.name,
       price: `ARS ${product.price.toLocaleString()}`,
       priceNumeric: product.price,
+      curvePrice: product.curvePrice,
       sizes: product.sizes.map((size) => ({
         size: size.size,
         color: "default",
@@ -99,6 +100,7 @@ const formatSizes = (sizes: { size: number; quantity: number }[]): string =>
                 className="object-cover object-center group-hover:opacity-75 transition-opacity"
                 loading="lazy"
               />
+              console.log(product)
               {product.specialTag && (
                 <div className="absolute top-2 right-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">
                   {product.specialTag.toUpperCase()}
@@ -110,8 +112,9 @@ const formatSizes = (sizes: { size: number; quantity: number }[]): string =>
                 <h3 className="text-sm font-medium text-gray-900">{product.name}</h3>
                 <p className="mt-1 text-sm text-gray-500">{product.category}</p>
               </div>
-              <div className="flex items-center gap-2">
-                <p className="text-sm font-medium text-gray-900">ARS {product.price.toLocaleString()}</p>
+              <div className="flex flex-col gap-3">
+                <p className="text-sm font-medium text-gray-900">Precio normal: ARS {product.price.toLocaleString()}</p>
+               <p className="text-sm font-medium text-gray-900">Precio curva completa: ARS {product.curvePrice.toLocaleString()}</p>
                 <p className="text-sm font-medium text-gray-900">Talles: {formatSizes(product.sizes)}</p>
               </div>
             </div>

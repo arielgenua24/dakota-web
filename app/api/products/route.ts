@@ -19,7 +19,8 @@ type Product = {
   image1?: string
   image2?: string
   image3?: string
-  price?: string
+  price?: number
+  curvePrice?: number
   size?: string
 }
 
@@ -62,7 +63,8 @@ const processJeansData = (products: Product[]): ReturnType<typeof Array.prototyp
         img2: mainProduct.image2 || "",
         img3: mainProduct.image3 || "",
       },
-      price: Number.parseInt(mainProduct.price || "0") || 0,
+      price: Number(mainProduct.price || "0") || 0,
+      curvePrice: Number(mainProduct.curvePrice || "0") || 0,
       state: "",
       sizes: uniqueSizes
         .sort((a, b) => {

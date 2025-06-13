@@ -9,6 +9,7 @@ export interface Product {
   title: string
   price: string
   priceNumeric: number
+  curvePrice: number
   sizes: SizeOption[]
   image: string
   category: string
