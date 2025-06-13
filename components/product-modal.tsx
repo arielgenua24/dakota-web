@@ -131,7 +131,45 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0c0801e0] bg-opacity-50">
+      {useCurvePrice && (
+        <div 
+          className="fixed top-[100px] left-0 z-[60] w-full shadow-lg flex items-center justify-center" 
+          style={{
+            backgroundColor: 'rgba(40, 167, 69, 0.95)',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            color: 'white',
+            fontWeight: 500,
+            height: '100px',
+            animation: 'slideDown 0.5s ease-out forwards',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
+            maxWidth: '600px',
+          }}
+        >
+          <div className="flex flex-col items-center justify-center text-center px-4">
+            <div className="flex items-center gap-3 mb-2">
+              <span style={{ fontSize: '22px', fontWeight: 600 }}>¡Felicitaciones!</span>
+              <span style={{ fontSize: '24px' }}>✅</span>
+            </div>
+            <span style={{ fontSize: '18px', maxWidth: '600px', lineHeight: '1.4' }}>
+              Estás aplicando al descuento por comprar curva completa
+            </span>
+          </div>
+          <style jsx>{`
+            @keyframes slideDown {
+              from {
+                opacity: 0;
+                transform: translateY(-20px);
+              }
+              to {
+                opacity: 1;
+                transform: translateY(0);
+              }
+            }
+          `}</style>
+        </div>
+      )}
       <div className="bg-white w-full max-w-4xl max-h-[90vh] overflow-auto rounded">
         <div className="sticky top-0 z-10 bg-[#f9f3e8] p-4 flex justify-between items-center">
           <button onClick={onClose} className="text-black">
@@ -186,8 +224,7 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
               <div className="mb-6">
                 <h3 className="text-sm font-medium mb-2">Detalle del producto</h3>
                 <p className="text-sm text-gray-600">
-                  Prenda de alta calidad confeccionada con los mejores materiales. Ideal para boutiques y tiendas de
-                  moda exclusiva.
+                  Prendas de alta calidad confeccionada con los mejores materiales. Ideal para tiendas de jeans de hombre, generar exclusividad tanto como un impacto visual para tus clintes.
                 </p>
               </div>
 
@@ -228,10 +265,28 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
 
               <div className="border-t border-gray-200 pt-4 mb-6">
                 <div className="flex justify-between mb-2">
-                  <span className="font-medium">{useCurvePrice ? "Precio por curva" : "Precio unitario"}</span>
+                  <span className="font-medium">Precio unitario</span>
                   <span>
-                    ARS {(useCurvePrice && product.curvePrice ? product.curvePrice : product.priceNumeric).toLocaleString()}
+                    ARS {product.priceNumeric.toLocaleString()}
                   </span>
+                </div>
+                <div className="flex justify-between mb-2">
+                  <span style={{
+                    fontSize: '17px',
+                    backgroundColor: 'rgb(219 253 223)',
+                    border: '1px solid rgb(185 218 192)',
+                    color: 'rgb(29 190 17)',
+                    padding: '6px',
+                    borderRadius: '4px'
+                  } } className="font-bold">Precio por curva completa</span>
+                  <span style={{
+                      fontSize: '17px',
+                      backgroundColor: 'rgb(219 253 223)',
+                      border: '1px solid rgb(185 218 192)',
+                      color: 'rgb(29 190 17)',
+                      padding: '6px',
+                      borderRadius: '4px'
+                    }} className="text-2xl">ARS {product.curvePrice.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between mb-2">
                   <span className="font-medium">Cantidad total</span>
