@@ -10,18 +10,13 @@ export default function LocationSection() {
         <h2 className={`${playfair.className} text-3xl mb-8 text-center`}>Nuestra Ubicación y Contacto</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="h-[300px] bg-gray-200 flex items-center justify-center">
-            <p className="text-gray-500">Google maps iframe</p>
-          </div>
-
           <div className="space-y-6">
             <div className="flex items-start space-x-4">
               <MapPin className="mt-1 flex-shrink-0" />
               <div>
-                <h3 className="font-medium mb-1">Dirección:</h3>
+                <h3 className="font-medium mb-1">Dirección y telefono de contacto</h3>
                 <p className="text-gray-600">
-                  Nos encontramos en Bogotá 2947, Ciudad autónoma de Buenos Aires, Local GALERÍA 5 Piso Bogotá - Local #
-                  7.
+                  Nos encontramos en Bogotá 3239, CP.1406 , Ciudad autónoma de Buenos Aires, Argentina.
                 </p>
               </div>
             </div>
@@ -31,9 +26,9 @@ export default function LocationSection() {
               <div>
                 <h3 className="font-medium mb-1">Horarios de atención:</h3>
                 <p className="text-gray-600">
-                  Lunes a Viernes: 10:00 - 19:00
+                  Lunes a Viernes: 7:00 - 17:00
                   <br />
-                  Sábados: 10:00 - 14:00
+                  Sábados: 8:00 - 13:00
                 </p>
               </div>
             </div>
@@ -41,11 +36,11 @@ export default function LocationSection() {
             <div className="flex items-start space-x-4">
               <Phone className="mt-1 flex-shrink-0" />
               <div>
-                <h3 className="font-medium mb-1">Teléfono y email:</h3>
+                <h3 className="font-medium mb-1">Teléfono y email de contacto:</h3>
                 <p className="text-gray-600">
-                  +54 11 1234-5678
+                  +54 11 6938-0844
                   <br />
-                  info@tiendadelujo.com
+                  faby198348@gmail.com
                 </p>
               </div>
             </div>

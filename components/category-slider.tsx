@@ -11,33 +11,27 @@ const playfair = Playfair_Display({ subsets: ["latin"] })
 const categories = [
   {
     id: 1,
-    name: "Spring Summer 2023",
+    name: "Buzos",
     image: "/placeholder.svg?height=300&width=200",
-    slug: "spring-summer-2023",
+    slug: "buzos",
   },
   {
     id: 2,
-    name: "Accesorios",
+    name: "Moms",
     image: "/placeholder.svg?height=300&width=200",
     slug: "accesorios",
   },
   {
     id: 3,
-    name: "Dresses",
+    name: "Joggers",
     image: "/placeholder.svg?height=300&width=200",
     slug: "dresses",
   },
   {
     id: 4,
-    name: "Pantalones",
+    name: "Bermudas",
     image: "/placeholder.svg?height=300&width=200",
     slug: "pantalones",
-  },
-  {
-    id: 5,
-    name: "Blusas",
-    image: "/placeholder.svg?height=300&width=200",
-    slug: "blusas",
   },
 ]
 
@@ -103,7 +97,7 @@ export default function CategorySlider() {
             }}
           >
             {categories.map((category) => (
-              <Link key={category.id} href={`/categoria/${category.slug}`} className="flex-shrink-0 w-[180px]">
+              <Link key={category.id} href={`/category/${category.slug}`} className="flex-shrink-0 w-[180px]">
                 <div className="relative h-[240px] w-full overflow-hidden">
                   <Image
                     src={category.image || "/placeholder.svg"}
