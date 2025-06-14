@@ -115,12 +115,12 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
 
     onClose()
   }
-
+  
   // Get product images (in a real app, these would come from the product data)
   const productImages = [
     product.image,
-    product.image, // Duplicated for demo, would be different images in real app
-    product.image,
+    product.image2, // Duplicated for demo, would be different images in real app
+    product.image3,
   ]
 
   const nextImage = () => {

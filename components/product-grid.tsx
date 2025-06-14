@@ -71,7 +71,9 @@ export default function ProductGrid({ limit = undefined, filter = undefined }: {
         color: "default",
         quantity: size.quantity,
       })),
-      image: product.images.img1 || "/placeholder.svg?height=400&width=300",
+      image: product.images?.img1 || "/placeholder.svg?height=400&width=300",
+      image2: product.images?.img2,
+      image3: product.images?.img3,
       category: product.category,
       isNew: product.specialTag === "new",
     }

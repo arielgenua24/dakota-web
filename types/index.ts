@@ -12,6 +12,11 @@ export interface Product {
   curvePrice: number
   sizes: SizeOption[]
   image: string
+  images: {
+    img1: string
+    img2: string
+    img3: string
+  }
   category: string
   isNew?: boolean
 }
