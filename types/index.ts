@@ -23,3 +23,10 @@ export interface CartItem {
   totalPrice: number
   useCurvePrice: boolean
 }
+
+export interface StoreProps {
+  searchParams: {
+    filter?: string;
+    limit?: string;
+  };
+}

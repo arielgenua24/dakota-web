@@ -6,7 +6,7 @@ import ProductModal from "./product-modal"
 import { useCart } from "@/hooks/use-cart"
 import { useProducts, type Product } from "@/hooks/use-products"
 
-export default function ProductGrid({ limit = 15 }: { limit?: number }) {
+export default function ProductGrid({ limit = undefined, filter = undefined }: { limit?: number, filter?: string }) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const { items, addItem } = useCart()
@@ -80,6 +80,18 @@ export default function ProductGrid({ limit = 15 }: { limit?: number }) {
 const formatSizes = (sizes: { size: number; quantity: number }[]): string =>
   sizes.map(({ size }) => size).join("/");
 
+  const displayed = products
+  .filter((product) => {
+    // Si no hay filtro, devuelvo todos los productos
+    if (filter == null) return true;
+    // Si filter viene definido, comparo category
+    return product.category === filter;
+  })
+  // 2. Luego aplico el límite (si viene)
+  .slice(0, limit ?? products.length);
+
+
+
 
   if (error) {
     return <div className="text-center py-10 text-red-500">Error: {error}</div>
@@ -87,7 +99,7 @@ const formatSizes = (sizes: { size: number; quantity: number }[]): string =>
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
-      {products.slice(0, limit).map((product) => {
+      {displayed.map((product) => {
         const cartProduct = convertToCartProduct(product)
 
         return (

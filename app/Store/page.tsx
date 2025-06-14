@@ -1,10 +1,20 @@
+// app/store/page.tsx
+
 import Navbar from "@/components/navbar"
 import ProductGrid from "@/components/product-grid"
+import { StoreProps } from "@/types"
 import { Playfair_Display } from "next/font/google"
 
 const playfair = Playfair_Display({ subsets: ["latin"] })
 
-export default function StorePage() {
+
+export default function StorePage({ searchParams }: StoreProps) {
+  // Extraemos los valores crudos
+  const { filter, limit: limitParam } = searchParams
+
+  // Parseamos limit a número si viene, o undefined
+  const limit = limitParam ? parseInt(limitParam, 10) : undefined
+
   return (
     <main className="min-h-screen bg-white">
       <Navbar />
@@ -16,7 +26,7 @@ export default function StorePage() {
           Toca en agregar al carrito para elegir los talles y las cantidades
         </span>
         <div className="mt-8">
-          <ProductGrid />
+          <ProductGrid limit={limit} filter={filter} />
         </div>
       </section>
     </main>

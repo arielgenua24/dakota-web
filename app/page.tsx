@@ -57,8 +57,8 @@ export default function Home() {
 
       {/* Products Section */}
       <section className="py-12 px-4 md:px-8 products-two-columns">
-        <h2 className={`${playfair.className} text-3xl mb-8`}>Todos nuestros productos</h2>
-        <ProductGrid />
+        <h2 className={`${playfair.className} text-3xl mb-8`}>Algunos de nuestros productos mejores productos</h2>
+        <ProductGrid limit={6}/>
       </section>
     </main>
   )

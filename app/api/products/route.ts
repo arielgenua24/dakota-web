@@ -56,7 +56,7 @@ const processJeansData = (products: Product[]): ReturnType<typeof Array.prototyp
     return {
       id: productCodeInt,
       name,
-      category: Category[(mainProduct.category as keyof typeof Category)] || Category.other,
+      category: mainProduct.category || Category.other,
       specialTag: "",
       images: {
         img1: mainProduct.image1 || "",
