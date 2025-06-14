@@ -8,7 +8,7 @@ import { useCart } from "@/hooks/use-cart"
 import ProductModal from "@/components/product-modal"
 import type { Product } from "@/types"
 
-export default function CartPage() {
+export default function CartPage({checkout, toggleResumen}: {checkout: boolean, toggleResumen: () => void}) {
   const { items, removeItem, getTotalPrice } = useCart()
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -47,10 +47,19 @@ export default function CartPage() {
   return (
     <div className="container mx-auto px-4 py-12 max-w-4xl">
       <div className="flex items-center mb-8">
+        {!checkout && (
         <Link href="/" className="flex items-center text-gray-600 hover:text-black">
           <ChevronLeft size={20} />
           <span>Volver a la tienda</span>
-        </Link>
+        </Link> ) || (
+          <button
+            onClick={toggleResumen}
+            className="w-full bg-black text-white py-3 font-medium text-center block flex items-center justify-center"
+          >
+            <ChevronLeft size={20} />
+            Volver atras
+          </button>
+        )}
       </div>
 
       <h1 className="text-2xl font-medium mb-8 text-center">ORDEN</h1>
@@ -150,9 +159,19 @@ export default function CartPage() {
           <span>ARS {getTotalPrice().toLocaleString()}</span>
         </div>
 
-        <Link href="/checkout" className="w-full bg-blue-500 text-white py-3 font-medium text-center block">
-          Siguiente
-        </Link>
+        {!checkout && (
+          <Link href="/checkout" className="w-full bg-blue-500 text-white py-3 font-medium text-center block">
+            Siguiente
+          </Link>
+        ) || (
+          <button
+            onClick={toggleResumen}
+            className="w-full bg-black text-white py-3 font-medium text-center block flex items-center justify-center"
+          >
+            <ChevronLeft size={20} />
+            Volver atras
+          </button>
+        )} 
       </div>
 
       {isModalOpen && editingProduct && (
