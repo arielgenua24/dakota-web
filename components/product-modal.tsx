@@ -96,12 +96,15 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
 
     if (selectedSizesArray.length === 0) return
 
+
     const cartItem: CartItem = {
       product,
       selectedSizes: selectedSizesArray,
       totalQuantity,
       totalPrice,
+      useCurvePrice
     }
+   
 
     const existingItemIndex = items.findIndex((item) => item.product.id === product.id)
     if (existingItemIndex >= 0) {

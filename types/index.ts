@@ -21,4 +21,5 @@ export interface CartItem {
   selectedSizes: SizeOption[]
   totalQuantity: number
   totalPrice: number
+  useCurvePrice: boolean
 }

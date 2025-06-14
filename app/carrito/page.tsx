@@ -58,6 +58,24 @@ export default function CartPage() {
       <div className="space-y-6">
         {items.map((item, index) => (
           <div key={index} className="border rounded-md p-4">
+            {item.useCurvePrice && (
+              <div
+                style={{
+                  width: "100%",
+                  height: "40px",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  borderRadius: "5px",
+                  backgroundColor: "rgb(219, 253, 223)",
+                  color: "rgb(29, 190, 17)",
+                  fontWeight: "bold",
+                  border: "1px solid",
+                }}
+                className="flex mb-4"
+              >
+                <span className="font-medium">Aplicas al descuento por curva completa</span>
+              </div>
+            )}
             <div className="flex flex-col md:flex-row gap-4">
               <div className="md:w-1/4">
                 <div className="relative aspect-square">
@@ -96,7 +114,11 @@ export default function CartPage() {
 
                 <div className="flex justify-between text-sm mb-6">
                   <span className="font-medium">PRECIO TOTAL</span>
-                  <span>ARS {(item.totalQuantity * item.product.priceNumeric).toLocaleString()}</span>
+                  {item.useCurvePrice && (
+                    <span style={{ fontSize: "16px", fontWeight: "bold" }}> Con descuento por curva completa ARS {(item.totalQuantity * item.product.curvePrice).toLocaleString()}</span>
+                  ) || (
+                    <span>ARS {(item.totalQuantity * item.product.priceNumeric).toLocaleString()}</span>
+                  )}
                 </div>
 
                 <div className="flex space-x-4">
@@ -124,7 +146,7 @@ export default function CartPage() {
 
       <div className="mt-8 border-t border-gray-200 pt-6">
         <div className="flex justify-between mb-4">
-          <span className="font-medium">Subtotal</span>
+          <span className="font-medium">Total final</span>
           <span>ARS {getTotalPrice().toLocaleString()}</span>
         </div>
 
