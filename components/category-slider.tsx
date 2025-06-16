@@ -11,25 +11,31 @@ const playfair = Playfair_Display({ subsets: ["latin"] })
 const categories = [
   {
     id: 1,
-    name: "buzos",
+    name: "Todos los productos",
+    image: "/placeholder.svg?height=300&width=200",
+    slug: undefined,
+  },
+  {
+    id: 2,
+    name: "Buzos",
     image: "/placeholder.svg?height=300&width=200",
     slug: "Buzos",
   },
   {
-    id: 2,
-    name: "moms",
+    id:  3,
+    name: "Moms",
     image: "/placeholder.svg?height=300&width=200",
     slug: "moms",
   },
   {
-    id: 3,
+    id: 4,
     name: "Joggers",
     image: "/placeholder.svg?height=300&width=200",
     slug: "joggers",
   },
   {
-    id: 4,
-    name: "baggy",
+    id: 5,
+    name: "Baggy",
     image: "/placeholder.svg?height=300&width=200",
     slug: "baggy",
   },

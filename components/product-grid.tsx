@@ -85,7 +85,7 @@ const formatSizes = (sizes: { size: number; quantity: number }[]): string =>
   const displayed = products
   .filter((product) => {
     // Si no hay filtro, devuelvo todos los productos
-    if (filter == null) return true;
+    if (filter == null || filter === "") return true;
     // Si filter viene definido, comparo category
     return product.category === filter;
   })

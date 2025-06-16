@@ -5,6 +5,7 @@ import ProductGrid from "@/components/product-grid"
 import { StoreProps } from "@/types"
 import { ChevronLeft } from "lucide-react";
 import { Playfair_Display } from "next/font/google"
+import CategorySlider from "@/components/category-slider"
 import Link from "next/link";
 
 const playfair = Playfair_Display({ subsets: ["latin"] })
@@ -15,7 +16,7 @@ export default function StorePage({ searchParams }: StoreProps) {
   const { filter, limit: limitParam } = searchParams
 
   // Parseamos limit a número si viene, o undefined
-  const limit = limitParam ? parseInt(limitParam, 10) : undefined
+  const limit = limitParam ? parseInt(limitParam) : undefined
 
   return (
     <main className="min-h-screen bg-white">
@@ -25,6 +26,8 @@ export default function StorePage({ searchParams }: StoreProps) {
           <ChevronLeft size={20} />
           <span>Volver a la tienda</span>
         </Link>
+         <CategorySlider />
+        
         <h1 className={`${playfair.className} text-3xl md:text-4xl mb-2`}>
           {filter ? `Todos los productos de la categoría ${filter}` : "Todos nuestros productos."}
         </h1>
