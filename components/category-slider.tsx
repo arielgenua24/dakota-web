@@ -12,31 +12,31 @@ const categories = [
   {
     id: 1,
     name: "Todos los productos",
-    image: "/placeholder.svg?height=300&width=200",
+    image: "/images/cat-mg/mom.jpg",
     slug: undefined,
   },
   {
     id: 2,
     name: "Buzos",
-    image: "/placeholder.svg?height=300&width=200",
+    image: "/images/cat-mg/buzo.jpg",
     slug: "Buzos",
   },
   {
     id:  3,
     name: "Moms",
-    image: "/placeholder.svg?height=300&width=200",
+    image: "/images/cat-mg/mom_dky.jpg",
     slug: "moms",
   },
   {
     id: 4,
     name: "Joggers",
-    image: "/placeholder.svg?height=300&width=200",
+    image: "/images/cat-mg/jogger_dkt.jpg",
     slug: "joggers",
   },
   {
     id: 5,
     name: "Baggy",
-    image: "/placeholder.svg?height=300&width=200",
+    image: "/images/cat-mg/baggy-bermuda.jpg",
     slug: "baggy",
   },
 ]

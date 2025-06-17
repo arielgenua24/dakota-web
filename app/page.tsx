@@ -40,7 +40,7 @@ export default function Home() {
         </button>
         <Link href="/Store"
           className="h-[60px] w-[200px] border-2 border-black bg-white "
-          style={{ fontFamily: inter.style.fontFamily, fontSize: "20px" }}
+          style={{ fontFamily: inter.style.fontFamily, fontSize: "20px", display: "flex", alignItems: "center", justifyContent: "center" }}
         >
           COMPRAR AHORA
         </Link>

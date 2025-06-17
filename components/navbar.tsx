@@ -26,7 +26,8 @@ export default function Navbar() {
             <span className={`text-base font-bold text-white ${playfair.className}`}>Tienda</span>
           </Link>
 
-          <Link href="/carrito" className="relative">
+          <Link href="/carrito" className="relative" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <span className="text-white">Carrito</span>
             <ShoppingBag size={20} />
             {items.length > 0 && (
               <span className="absolute -top-2 -right-2 bg-white text-black text-sm rounded-full h-6 w-6 flex items-center justify-center">
