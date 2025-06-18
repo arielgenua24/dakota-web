@@ -15,6 +15,7 @@ export default function FormularioCompra() {
     provincia: "",
     codigoPostal: "",
     empresaTransporte: "",
+    empresaTransporteOtra: "",
     tipoSeguro: "", // Nuevo campo para el tipo de seguro
     aclaracion: "",
   })
@@ -132,6 +133,7 @@ export default function FormularioCompra() {
         `*Provincia:* ${formData.provincia}`,
         `*CP:* ${formData.codigoPostal}`,
         `*Empresa de Transporte:* ${formData.empresaTransporte}`,
+        `*Empresa de Transporte Otra:* ${formData.empresaTransporteOtra}`,
       )
       if (formData.tipoSeguro) {
         messageParts.push(`*Tipo de Seguro:* ${formData.tipoSeguro}`)
@@ -405,15 +407,34 @@ export default function FormularioCompra() {
                     <option value="Central de carga terrestre">Central de carga terrestre</option>
                     <option value="Correo argentino">Correo argentino</option>
                     <option value="Md cargas">Md cargas</option>
+                    <option value="Quiero elegir otra empresa">Quiero elegir otra empresa</option>
                   </select>
                   {errors.empresaTransporte && <p className="mt-1 text-sm text-red-600">{errors.empresaTransporte}</p>}
                 </div>
+
+                {formData.empresaTransporte === "Quiero elegir otra empresa" && (
+                  <div style={{backgroundColor: "#F5F5F5", padding: "1rem", borderRadius: "8px", border: "1px solid #E5E7EB"}}>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Escribe aqui la empresa a elegir</label>
+                    <input
+                      type="text"
+                      name="empresaTransporteOtra"
+                      value={formData.empresaTransporteOtra}
+                      onChange={handleChange}
+                      className={`w-full p-2.5 border rounded-sm focus:ring-1 focus:ring-[#3483FA] ${errors.empresaTransporteOtra ? "border-red-500" : "border-gray-300"}`}
+                      placeholder="Ingrese el nombre de la empresa"
+                    />
+                    {errors.empresaTransporteOtra && <p className="mt-1 text-sm text-red-600">{errors.empresaTransporteOtra}</p>}
+                  </div>
+                )}
+
 
                 <div className="bg-[#FFF9ED] p-3 rounded-sm border border-[#FFE6B3] my-2">
                   <p className="text-sm text-[#A05E03] font-medium">
                     Seguro corre a cargo de la empresa de transporte seleccionada.
                   </p>
                 </div>
+
+
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Tipos de seguro</label>

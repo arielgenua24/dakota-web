@@ -14,8 +14,14 @@ export default function CartPage({checkout, toggleResumen}: {checkout: boolean, 
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const handleEdit = (product: Product) => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+
+    console.log("top")
+    // Selecciona el producto a editar
     setEditingProduct(product)
+    // Abre el modal de edición
     setIsModalOpen(true)
+    // Oculta el scroll vertical del body
   }
 
   const handleCloseModal = () => {
@@ -46,136 +52,138 @@ export default function CartPage({checkout, toggleResumen}: {checkout: boolean, 
 
   return (
     <div className="container mx-auto px-4 py-12 max-w-4xl">
-      <div className="flex items-center mb-8">
-        {!checkout && (
-        <Link href="/" className="flex items-center text-gray-600 hover:text-black">
-          <ChevronLeft size={20} />
-          <span>Volver a la tienda</span>
-        </Link> ) || (
-          <button
-            onClick={toggleResumen}
-            className="w-full bg-black text-white py-3 font-medium text-center block flex items-center justify-center"
-          >
-            <ChevronLeft size={20} />
-            Volver atras
-          </button>
-        )}
-      </div>
-
-      <h1 className="text-2xl font-medium mb-8 text-center">ORDEN</h1>
-
-      <div className="space-y-6">
-        {items.map((item, index) => (
-          <div key={index} className="border rounded-md p-4">
-            {item.useCurvePrice && (
-              <div
-                style={{
-                  width: "100%",
-                  height: "40px",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  borderRadius: "5px",
-                  backgroundColor: "rgb(219, 253, 223)",
-                  color: "rgb(29, 190, 17)",
-                  fontWeight: "bold",
-                  border: "1px solid",
-                }}
-                className="flex mb-4"
+      {isModalOpen && editingProduct ? (
+        <ProductModal product={editingProduct} onClose={handleCloseModal} isOpen={isModalOpen} />
+      ) : (
+        <>
+          <div className="flex items-center mb-8">
+            {!checkout && (
+            <Link href="/" className="flex items-center text-gray-600 hover:text-black">
+              <ChevronLeft size={20} />
+              <span>Volver a la tienda</span>
+            </Link> ) || (
+              <button
+                onClick={toggleResumen}
+                className="w-full bg-black text-white py-3 font-medium text-center block flex items-center justify-center"
               >
-                <span className="font-medium">Aplicas al descuento por curva completa</span>
-              </div>
+                <ChevronLeft size={20} />
+                Volver atras
+              </button>
             )}
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="md:w-1/4">
-                <div className="relative aspect-square">
-                  <Image
-                    src={item.product.image || "/placeholder.svg"}
-                    alt={item.product.title}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              </div>
+          </div>
 
-              <div className="md:w-3/4">
-                <h2 className="text-lg font-medium mb-2">{item.product.title}</h2>
+          <h1 className="text-2xl font-medium mb-8 text-center">ORDEN</h1>
 
-                <div className="mb-4">
-                  <div className="flex justify-between mb-2 font-medium text-sm">
-                    <span>Talles</span>
-                    <span>Cantidad</span>
+          <div className="space-y-6">
+            {items.map((item, index) => (
+              <div key={index} className="border rounded-md p-4">
+                {item.useCurvePrice && (
+                  <div
+                    style={{
+                      width: "100%",
+                      height: "40px",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      borderRadius: "5px",
+                      backgroundColor: "rgb(219, 253, 223)",
+                      color: "rgb(29, 190, 17)",
+                      fontWeight: "bold",
+                      border: "1px solid",
+                    }}
+                    className="flex mb-4"
+                  >
+                    <span className="font-medium">Aplicas al descuento por curva completa</span>
+                  </div>
+                )}
+                <div className="flex flex-col md:flex-row gap-4">
+                  <div className="md:w-1/4">
+                    <div className="relative aspect-square">
+                      <Image
+                        src={item.product.image || "/placeholder.svg"}
+                        alt={item.product.title}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
                   </div>
 
-                  {item.selectedSizes.map((sizeOption, idx) => (
-                    <div key={idx} className="flex justify-between py-1 border-t border-gray-200 text-sm">
-                      <span>
-                        {sizeOption.size} {sizeOption.color !== "default" ? `- ${sizeOption.color}` : ""}
-                      </span>
-                      <span>{sizeOption.quantity}</span>
+                  <div className="md:w-3/4">
+                    <h2 className="text-lg font-medium mb-2">{item.product.title}</h2>
+
+                    <div className="mb-4">
+                      <div className="flex justify-between mb-2 font-medium text-sm">
+                        <span>Talles</span>
+                        <span>Cantidad</span>
+                      </div>
+
+                      {item.selectedSizes.map((sizeOption, idx) => (
+                        <div key={idx} className="flex justify-between py-1 border-t border-gray-200 text-sm">
+                          <span>
+                            {sizeOption.size} {sizeOption.color !== "default" ? `- ${sizeOption.color}` : ""}
+                          </span>
+                          <span>{sizeOption.quantity}</span>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
 
-                <div className="flex justify-between text-sm mb-4">
-                  <span className="font-medium">CANTIDAD TOTAL</span>
-                  <span>{item.totalQuantity}</span>
-                </div>
+                    <div className="flex justify-between text-sm mb-4">
+                      <span className="font-medium">CANTIDAD TOTAL</span>
+                      <span>{item.totalQuantity}</span>
+                    </div>
 
-                <div className="flex justify-between text-sm mb-6">
-                  <span className="font-medium">PRECIO TOTAL</span>
-                  {item.useCurvePrice && (
-                    <span style={{ fontSize: "16px", fontWeight: "bold" }}> Con descuento por curva completa ARS {(item.totalQuantity * item.product.curvePrice).toLocaleString()}</span>
-                  ) || (
-                    <span>ARS {(item.totalQuantity * item.product.priceNumeric).toLocaleString()}</span>
-                  )}
-                </div>
+                    <div className="flex justify-between text-sm mb-6">
+                      <span className="font-medium">PRECIO TOTAL</span>
+                      {item.useCurvePrice && (
+                        <span style={{ fontSize: "16px", fontWeight: "bold" }}> Con descuento por curva completa ARS {(item.totalQuantity * item.product.curvePrice).toLocaleString()}</span>
+                      ) || (
+                        <span>ARS {(item.totalQuantity * item.product.priceNumeric).toLocaleString()}</span>
+                      )}
+                    </div>
 
-                <div className="flex space-x-4">
-                  <button
-                    onClick={() => handleEdit(item.product)}
-                    className="flex items-center text-gray-600 hover:text-black"
-                  >
-                    <Edit size={18} className="mr-1" />
-                    <span>EDITAR</span>
-                  </button>
+                    <div className="flex space-x-4">
+                      <button
+                        onClick={() => handleEdit(item.product)}
+                        className="flex items-center text-gray-600 hover:text-black"
+                      >
+                        <Edit size={18} className="mr-1" />
+                        <span>EDITAR</span>
+                      </button>
 
-                  <button
-                    onClick={() => removeItem(index)}
-                    className="flex items-center text-red-600 hover:text-red-800"
-                  >
-                    <Trash2 size={18} className="mr-1" />
-                    <span>Eliminar del carrito</span>
-                  </button>
+                      <button
+                        onClick={() => removeItem(index)}
+                        className="flex items-center text-red-600 hover:text-red-800"
+                      >
+                        <Trash2 size={18} className="mr-1" />
+                        <span>Eliminar del carrito</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
+            ))}
           </div>
-        ))}
-      </div>
 
-      <div className="mt-8 border-t border-gray-200 pt-6">
-        <div className="flex justify-between mb-4">
-          <span className="font-medium">Total final</span>
-          <span>ARS {getTotalPrice().toLocaleString()}</span>
-        </div>
+          <div className="mt-8 border-t border-gray-200 pt-6">
+            <div className="flex justify-between mb-4">
+              <span className="font-medium">Total final</span>
+              <span>ARS {getTotalPrice().toLocaleString()}</span>
+            </div>
 
-        {!checkout && (
-          <Link href="/checkout" className="w-full bg-blue-500 text-white py-3 font-medium text-center block">
-            Siguiente
-          </Link>
-        ) || (
-          <button
-            onClick={toggleResumen}
-            className="w-full bg-black text-white py-3 font-medium text-center block flex items-center justify-center"
-          >
-            <ChevronLeft size={20} />
-            Volver atras
-          </button>
-        )} 
-      </div>
-
-      {isModalOpen && editingProduct && (
-        <ProductModal product={editingProduct} onClose={handleCloseModal} isOpen={isModalOpen} />
+            {!checkout && (
+              <Link href="/checkout" className="w-full bg-blue-500 text-white py-3 font-medium text-center block">
+                Siguiente
+              </Link>
+            ) || (
+              <button
+                onClick={toggleResumen}
+                className="w-full bg-black text-white py-3 font-medium text-center block flex items-center justify-center"
+              >
+                <ChevronLeft size={20} />
+                Volver atras
+              </button>
+            )}
+          </div>
+        </>
       )}
     </div>
   )
