@@ -114,7 +114,6 @@ const formatSizes = (sizes: { size: number; quantity: number }[]): string =>
                 className="object-cover object-center group-hover:opacity-75 transition-opacity"
                 loading="lazy"
               />
-              console.log(product)
               {product.specialTag && (
                 <div className="absolute top-2 right-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">
                   {product.specialTag.toUpperCase()}

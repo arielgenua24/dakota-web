@@ -5,6 +5,7 @@ import LocationSection from "@/components/location-section"
 import CategorySlider from "@/components/category-slider"
 import Navbar from "@/components/navbar"
 import Link from "next/link"
+import WhatsappButton from "@/components/WhatsappButton";
 
 const playfair = Playfair_Display({ subsets: ["latin"] })
 const bebasNeue = Bebas_Neue({ weight: "400", subsets: ["latin"] })
@@ -91,6 +92,8 @@ export default function Home() {
         <h2 className={`${playfair.className} text-3xl mb-8`}>Algunos de nuestros productos mejores productos</h2>
         <ProductGrid limit={6}/>
       </section>
+      {/* Botón flotante de WhatsApp */}
+      <WhatsappButton />
     </main>
   )
 }

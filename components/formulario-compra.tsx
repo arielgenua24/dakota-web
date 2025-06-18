@@ -145,8 +145,9 @@ export default function FormularioCompra() {
       }
     }
 
+    const phoneNumber = process.env.NEXT_PUBLIC_WHATSAPP_PHONE;
     const message = encodeURIComponent(messageParts.join("\n"))
-    window.open(`https://wa.me/?text=${message}`, "_blank")
+    window.open(`https://wa.me/${phoneNumber}?text=${message}`, "_blank")
   }
 
   const renderStep = () => {
