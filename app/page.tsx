@@ -1,3 +1,4 @@
+"use client";
 import Image from "next/image"
 import { Playfair_Display, Bebas_Neue, Inter } from "next/font/google"
 import ProductGrid from "@/components/product-grid"
@@ -12,6 +13,15 @@ const bebasNeue = Bebas_Neue({ weight: "400", subsets: ["latin"] })
 const inter = Inter({ weight: "400", subsets: ["latin"] })
 
 export default function Home() {
+  const sendMessage = () => {
+    const phoneNumber = process.env.NEXT_PUBLIC_WHATSAPP_PHONE;
+    const message = "Hola! He visitado su web y quiero hablar con ustedes.";
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappURL = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodedMessage}`;
+    window.open(whatsappURL, '_blank');
+  };
+
+  
   return (
     <main className="min-h-screen bg-white">
       <Navbar />
@@ -36,6 +46,7 @@ export default function Home() {
         <button
           className="h-[60px] w-[200px] border-2 border-black bg-white "
           style={{ fontFamily: inter.style.fontFamily, fontSize: "16px" }}
+          onClick={sendMessage}
         >
           HABLAR CON NOSOTROS AHORA
         </button>
@@ -93,7 +104,7 @@ export default function Home() {
         <ProductGrid limit={6}/>
       </section>
       {/* Botón flotante de WhatsApp */}
-      <WhatsappButton />
+      <WhatsappButton sendMessage={sendMessage}/>
     </main>
   )
 }
