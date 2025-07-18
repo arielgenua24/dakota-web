@@ -29,7 +29,7 @@ export default function Home() {
       <section className="relative h-[529px] w-full bg-[#E7D1AB]/[0.29] mt-12">
   <div className="absolute inset-0 flex flex-col items-center pt-10 px-4 space-y-1">
     <h1 className={`${bebasNeue.className} text-[31px]`}>
-      DAKOTA MEN
+      THOREN
     </h1>
     <p className={`${inter.className} text-[19px] text-center`}>
       Jeans y buzos mayorista, de alta calidad.

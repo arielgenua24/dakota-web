@@ -12,6 +12,9 @@ export default function CartPage({checkout, toggleResumen}: {checkout: boolean, 
   const { items, removeItem, getTotalPrice } = useCart()
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isQuantityModalOpen, setIsQuantityModalOpen] = useState(false)
+
+  const totalQuantity = items.reduce((total, item) => total + item.totalQuantity, 0)
 
   const handleEdit = (product: Product) => {
     window.scrollTo({ top: 0, behavior: 'instant' });
@@ -182,7 +185,16 @@ export default function CartPage({checkout, toggleResumen}: {checkout: boolean, 
             </div>
 
             {!checkout && (
-              <Link href="/checkout" className="w-full bg-blue-500 text-white py-3 font-medium text-center block">
+              <Link
+                href="/checkout"
+                onClick={(e) => {
+                  if (totalQuantity < 15) {
+                    e.preventDefault();
+                    setIsQuantityModalOpen(true);
+                  }
+                }}
+                className="w-full bg-blue-500 text-white py-3 font-medium text-center block"
+              >
                 Siguiente
               </Link>
             ) || (
@@ -196,6 +208,21 @@ export default function CartPage({checkout, toggleResumen}: {checkout: boolean, 
             )}
           </div>
         </>
+      )}
+
+      {isQuantityModalOpen && (
+        <div className="fixed inset-0 bg-gray-50 bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-8 rounded-lg shadow-lg text-center max-w-sm mx-4">
+            <h2 className="text-xl font-bold mb-4">¡Hola querido cliente!</h2>
+            <p className="mb-6">{`La compra mínima es de 15 artículos y tú has comprado ${totalQuantity} en total.`}</p>
+            <button
+              onClick={() => setIsQuantityModalOpen(false)}
+              className="bg-blue-600 text-white px-6 py-2 rounded"
+            >
+              Entendido
+            </button>
+          </div>
+        </div>
       )}
     </div>
   )
