@@ -134,25 +134,23 @@ export default function CartPage({checkout, toggleResumen}: {checkout: boolean, 
                       <span>{item.totalQuantity}</span>
                     </div>
 
-                    {item.useCurvePrice && (
-                      <div className="flex justify-between text-sm mb-6">
-                        <span className="font-medium">Precio unitario por curva completa</span>
-                        <span style={{}}>ARS {item.product.curvePrice.toLocaleString()}</span>
+                    {/* Precios unitarios */}
+                    {item.curveUnits > 0 && (
+                      <div className="flex justify-between text-sm mb-2">
+                        <span className="font-medium">Unidades con curva ({item.curveUnits})</span>
+                        <span>ARS {item.product.curvePrice.toLocaleString()}</span>
                       </div>
-                    ) || (
-                      <div className="flex justify-between text-sm mb-6">
-                        <span className="font-medium">Precio unitario</span>
-                        <span style={{}}>ARS {item.product.priceNumeric.toLocaleString()}</span>
+                    )}
+                    {item.normalUnits > 0 && (
+                      <div className="flex justify-between text-sm mb-2">
+                        <span className="font-medium">Unidades precio normal ({item.normalUnits})</span>
+                        <span>ARS {item.product.priceNumeric.toLocaleString()}</span>
                       </div>
                     )}
 
                     <div className="flex justify-between text-sm mb-6">
                       <span className="font-medium" style={{fontSize: "16px", fontWeight: "bold"}}>PRECIO TOTAL</span>
-                      {item.useCurvePrice && (
-                        <span style={{ fontSize: "16px", fontWeight: "bold", color: "rgb(29, 190, 17)", backgroundColor: "rgb(219, 253, 223)", padding: "5px", borderRadius: "5px" }}> Aplicado descuento por curva completa ARS {(item.totalQuantity * item.product.curvePrice).toLocaleString()}</span>
-                      ) || (
-                        <span>ARS {(item.totalQuantity * item.product.priceNumeric).toLocaleString()}</span>
-                      )}
+                      <span style={{fontSize: "16px", fontWeight: "bold"}}>ARS {item.totalPrice.toLocaleString()}</span>
                     </div>
 
                     <div className="flex space-x-4">

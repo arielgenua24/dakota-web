@@ -27,6 +27,8 @@ export interface CartItem {
   totalQuantity: number
   totalPrice: number
   useCurvePrice: boolean
+  curveUnits: number
+  normalUnits: number
 }
 
 export interface StoreProps {

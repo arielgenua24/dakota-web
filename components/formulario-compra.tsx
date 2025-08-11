@@ -119,7 +119,24 @@ export default function FormularioCompra() {
       item.selectedSizes.forEach((size) => {
         messageParts.push(`   - Talle ${size.size} (${size.color}): ${size.quantity} unidades`)
       })
-      messageParts.push(`   - Subtotal: ${item.product.price}`)
+
+      // Desglose de precios según curva y normal
+      if (item.curveUnits > 0) {
+        messageParts.push(
+          `   
+          DETALLES DE DESCUENTOS POR CURVA:
+        - ${item.curveUnits} un. con curva a ARS ${item.product.curvePrice.toLocaleString()} = ARS ${(item.curveUnits * item.product.curvePrice).toLocaleString()}`
+        )
+      }
+      if (item.normalUnits > 0) {
+        messageParts.push(
+          `   
+          DETALLES DE PRECIOS NORMALES:
+        - ${item.normalUnits} un. a ARS ${item.product.priceNumeric.toLocaleString()} = ARS ${(item.normalUnits * item.product.priceNumeric).toLocaleString()}`
+        )
+      }
+
+      messageParts.push(`   - Subtotal ítem: ARS ${item.totalPrice.toLocaleString()}`)
       messageParts.push(``)
     })
 

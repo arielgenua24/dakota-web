@@ -18,6 +18,9 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
   const [totalQuantity, setTotalQuantity] = useState(0)
   const [totalPrice, setTotalPrice] = useState(0)
   const [useCurvePrice, setUseCurvePrice] = useState(false)
+  // NEW: cantidad de unidades a las que se aplica el descuento y las que pagan precio normal
+  const [curveUnits, setCurveUnits] = useState(0)
+  const [normalUnits, setNormalUnits] = useState(0)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const { addItem, updateItem, items } = useCart()
 
@@ -35,35 +38,41 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
     }
   }, [product.id, items])
 
-  // Calculate totals whenever selections change
+  // Re-calcula precios y cantidades cada vez que cambian las selecciones
   useEffect(() => {
-    let quantity = 0
-    Object.values(selectedSizes).forEach((q) => {
-      quantity += q
-    })
+    // Cantidad total de unidades elegidas
+    const quantity = Object.values(selectedSizes).reduce((acc, q) => acc + q, 0)
     setTotalQuantity(quantity)
 
-    // Check if all available sizes have at least one item selected
-    const allSizesSelected =
-      product.sizes?.length > 0 &&
-      product.sizes.every((sizeOption) => {
-        const key = `${sizeOption.size}-${sizeOption.color}`
-        return (selectedSizes[key] || 0) >= 1
-      })
-
-    console.log(allSizesSelected) // Si elegi al menos un item de cada talla, es true. Funciona.
-    console.log(product.curvePrice) // Muestra el precio de la curva si existe. Funciona.
-    console.log(product)
-    const canUseCurvePrice = !!(allSizesSelected && product.curvePrice && parseFloat(product.curvePrice) > 0)
-    setUseCurvePrice(canUseCurvePrice)
-
-    const priceForCalculation = canUseCurvePrice && product.curvePrice ? parseFloat(product.curvePrice) : product.priceNumeric;
-    if (isNaN(priceForCalculation)) {
-      console.error("Error: priceForCalculation is NaN. curvePrice:", product.curvePrice, "priceNumeric:", product.priceNumeric);
-      setTotalPrice(0); // Default to 0 or handle error appropriately
-    } else {
-      setTotalPrice(quantity * priceForCalculation);
+    if (!product.sizes || product.sizes.length === 0) {
+      setUseCurvePrice(false)
+      setCurveUnits(0)
+      setNormalUnits(quantity)
+      setTotalPrice(quantity * product.priceNumeric)
+      return
     }
+
+    // Obtiene cantidades por talle y calcula la cantidad mínima elegida en todos los talles
+    const quantitiesPerSize = product.sizes.map((sizeOption) => {
+      const key = `${sizeOption.size}-${sizeOption.color}`
+      return selectedSizes[key] || 0
+    })
+
+    const minQtyAcrossSizes = Math.min(...quantitiesPerSize)
+
+    const curveApplies = minQtyAcrossSizes > 0 && product.curvePrice > 0
+    setUseCurvePrice(curveApplies)
+
+    // Cantidad total de unidades con precio de curva y normal
+    const curveQty = curveApplies ? minQtyAcrossSizes * product.sizes.length : 0
+    const normalQty = quantity - curveQty
+
+    setCurveUnits(curveQty)
+    setNormalUnits(normalQty)
+
+    // Precio total
+    const total = curveQty * product.curvePrice + normalQty * product.priceNumeric
+    setTotalPrice(total)
   }, [selectedSizes, product])
 
   const handleQuantityChange = (size: number | string, color: string, change: number) => {
@@ -102,7 +111,9 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
       selectedSizes: selectedSizesArray,
       totalQuantity,
       totalPrice,
-      useCurvePrice
+      useCurvePrice,
+      curveUnits,
+      normalUnits
     }
    
 
@@ -267,34 +278,49 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
               </div>
 
               <div className="border-t border-gray-200 pt-4 mb-6">
+                {/* Precios unitarios */}
                 <div className="flex justify-between mb-2">
                   <span className="font-medium">Precio unitario</span>
-                  <span>
-                    ARS {product.priceNumeric.toLocaleString()}
-                  </span>
+                  <span>ARS {product.priceNumeric.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between mb-2">
+                  <span className="font-medium" style={{
+                    fontSize: '15px',
+                    backgroundColor: 'rgb(219 253 223)',
+                    border: '1px solid rgb(185 218 192)',
+                    color: 'rgb(29 190 17)',
+                    padding: '4px',
+                    borderRadius: '4px'
+                  }}>Precio unitario con curva</span>
                   <span style={{
                     fontSize: '17px',
                     backgroundColor: 'rgb(219 253 223)',
                     border: '1px solid rgb(185 218 192)',
                     color: 'rgb(29 190 17)',
-                    padding: '6px',
+                    padding: '5px',
                     borderRadius: '4px'
-                  } } className="font-bold">Precio por curva completa</span>
-                  <span style={{
-                      fontSize: '17px',
-                      backgroundColor: 'rgb(219 253 223)',
-                      border: '1px solid rgb(185 218 192)',
-                      color: 'rgb(29 190 17)',
-                      padding: '6px',
-                      borderRadius: '4px'
-                    }} className="text-2xl">ARS {product.curvePrice.toLocaleString()}</span>
+                  }}>ARS {product.curvePrice.toLocaleString()}</span>
                 </div>
+
+                {/* Cantidades */}
+                {useCurvePrice && (
+                  <>
+                    <div className="flex justify-between mb-2">
+                      <span className="font-medium">Unidades con curva</span>
+                      <span>{curveUnits}</span>
+                    </div>
+                    <div className="flex justify-between mb-2">
+                      <span className="font-medium">Unidades precio normal</span>
+                      <span>{normalUnits}</span>
+                    </div>
+                  </>
+                )}
                 <div className="flex justify-between mb-2">
                   <span className="font-medium">Cantidad total</span>
                   <span>{totalQuantity}</span>
                 </div>
+
+                {/* Precio final */}
                 <div className="flex justify-between">
                   <span className="font-medium">Precio total</span>
                   <span>ARS {totalPrice.toLocaleString()}</span>
