@@ -189,7 +189,6 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
           <button onClick={onClose} className="text-black">
             <ChevronLeft size={24} />
           </button>
-          <h2 className="text-lg font-medium">NAVBAR</h2>
           <button onClick={onClose} className="text-black">
             <X size={24} />
           </button>

@@ -70,27 +70,39 @@ export const useProducts = () => {
       // Verificar si hay productos en sessionStorage
       const storedProducts = sessionStorage.getItem("products")
 
-      if (!storedProducts || page === 1) {
-        // Si no hay productos almacenados o es la primera página, guardar los nuevos
-        sessionStorage.setItem("products", JSON.stringify(data.products))
-        setProducts(data.products)
+      const storedCategory = sessionStorage.getItem("category");
+
+      // Si la categoría cambió, es la primera página, o no hay productos guardados, reiniciamos la lista.
+      if (category !== storedCategory || page === 1 || !storedProducts) {
+        setProducts(data.products);
+        sessionStorage.setItem("products", JSON.stringify(data.products));
+        // Guardamos la categoría actual para futuras comparaciones.
+        if (category) {
+          sessionStorage.setItem("category", category);
+        } else {
+          sessionStorage.removeItem("category");
+        }
       } else {
-        // Si hay productos almacenados y no es la primera página, añadir los nuevos
-        const existingProducts = JSON.parse(storedProducts)
-        const updatedProducts = [...existingProducts, ...data.products]
-        sessionStorage.setItem("products", JSON.stringify(updatedProducts))
-        setProducts(updatedProducts)
+        // Si estamos en la misma categoría y no es la primera página, añadimos productos (scroll infinito).
+        const existingProducts = JSON.parse(storedProducts);
+        const updatedProducts = [...existingProducts, ...data.products];
+        setProducts(updatedProducts);
+        sessionStorage.setItem("products", JSON.stringify(updatedProducts));
       }
 
       setPagination(data.pagination)
     } catch (err) {
       console.error("Error fetching products:", err)
-      setError(err.message || "Error al cargar los productos")
+      if (err instanceof Error) {
+        setError(err.message)
+      } else {
+        setError("An unknown error occurred")
+      }
 
       // Intentar cargar desde sessionStorage si la API falla
-      const storedProducts = sessionStorage.getItem("products")
-      if (storedProducts) {
-        setProducts(JSON.parse(storedProducts))
+      const cachedProducts = sessionStorage.getItem("products")
+      if (cachedProducts) {
+        setProducts(JSON.parse(cachedProducts))
       }
     } finally {
       setLoading(false)
@@ -105,19 +117,7 @@ export const useProducts = () => {
     fetchProducts(page, pagination.limit, category)
   }, [searchParams, fetchProducts, pagination.limit])
 
-  // Cargar productos iniciales o desde sessionStorage
-  useEffect(() => {
-    const storedProducts = sessionStorage.getItem("products")
 
-    if (storedProducts) {
-      // Si hay productos en sessionStorage, usarlos primero para mostrar algo rápido
-      setProducts(JSON.parse(storedProducts))
-      setLoading(false)
-    }
-
-    // Luego, obtener los productos frescos de la API
-    fetchProducts(1, pagination.limit)
-  }, [])
 
   const loadMoreProducts = useCallback(() => {
     if (pagination.page < pagination.totalPages && !loading) {

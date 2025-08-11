@@ -87,7 +87,7 @@ const formatSizes = (sizes: { size: number; quantity: number }[]): string =>
     // Si no hay filtro, devuelvo todos los productos
     if (filter == null || filter === "") return true;
     // Si filter viene definido, comparo category
-    return product.category === filter;
+    return product.category.trim().toLowerCase() === filter.trim().toLowerCase();
   })
   // 2. Luego aplico el límite (si viene)
   .slice(0, limit ?? products.length);
