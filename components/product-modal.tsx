@@ -76,21 +76,29 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
   }, [selectedSizes, product])
 
   const handleQuantityChange = (size: number | string, color: string, change: number) => {
-    const key = `${size}-${color}`
-    const currentQuantity = selectedSizes[key] || 0
-    const newQuantity = Math.max(0, currentQuantity + change)
+    console.log(`Cambiando cantidad para talle ${size}, color ${color}, cambio: ${change}`);
+    
+    // Crear clave para mapeo
+    const key = `${size}-${color}`;
+    
+    // Obtener cantidad actual (0 si no existe)
+    const currentQuantity = selectedSizes[key] || 0;
+    console.log(`Cantidad actual: ${currentQuantity}`);
+    
+    // Calcular nueva cantidad (nunca menos de 0)
+    const newQuantity = Math.max(0, currentQuantity + change);
+    console.log(`Nueva cantidad: ${newQuantity}`);
 
+    // Actualizar el estado con la nueva cantidad
     const updatedSizes = {
       ...selectedSizes,
       [key]: newQuantity,
-    }
-    console.log(selectedSizes)
-
-    /*if (newQuantity === 0) {
-      delete updatedSizes[key]
-    }*/
-
-    setSelectedSizes(updatedSizes)
+    };
+    
+    console.log('Tamaños actualizados:', updatedSizes);
+    
+    // Actualizar el estado
+    setSelectedSizes(updatedSizes);
   }
 
   const handleAddToCart = () => {
@@ -127,12 +135,12 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
     onClose()
   }
   
-  // Get product images (in a real app, these would come from the product data)
+  // Obtener las imágenes del producto usando la estructura correcta
   const productImages = [
-    product.image,
-    product.image2, // Duplicated for demo, would be different images in real app
-    product.image3,
-  ]
+    product.image || product.images?.img1 || '/placeholder.svg?height=400&width=300',
+    product.images?.img2 || '/placeholder.svg?height=400&width=300',
+    product.images?.img3 || '/placeholder.svg?height=400&width=300'
+  ].filter(img => img) // Filtrar imágenes vacías
 
   const nextImage = () => {
     setCurrentImageIndex((currentImageIndex + 1) % productImages.length)
@@ -247,33 +255,48 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
                   <span className="text-sm font-medium">Cantidad</span>
                 </div>
 
-                {product.sizes.map((sizeOption) => {
-                  const key = `${sizeOption.size}-${sizeOption.color}`
-                  const quantity = selectedSizes[key] || 0
+                {product.sizes && product.sizes.length > 0 ? (
+                  product.sizes.map((sizeOption) => {
+                    // Log para depuración
+                    console.log('Renderizando talle:', sizeOption);
+                    
+                    // Aseguramos que tanto size como color existan
+                    const size = sizeOption.size || 'U';
+                    const color = sizeOption.color || 'default';
+                    const key = `${size}-${color}`;
+                    const quantity = selectedSizes[key] || 0;
+                    const maxQuantity = typeof sizeOption.quantity === 'number' ? sizeOption.quantity : 10;
 
-                  return (
-                    <div key={key} className="flex justify-between items-center py-2 border-t border-gray-200">
-                      <span className="text-sm">{sizeOption.size}</span>
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => handleQuantityChange(sizeOption.size, sizeOption.color, -1)}
-                          className="text-gray-500 hover:text-black"
-                          disabled={quantity === 0}
-                        >
-                          <Minus size={16} />
-                        </button>
-                        <span className="w-6 text-center">{quantity}</span>
-                        <button
-                          onClick={() => handleQuantityChange(sizeOption.size, sizeOption.color, 1)}
-                          className="text-gray-500 hover:text-black"
-                          disabled={quantity >= sizeOption.quantity}
-                        >
-                          <Plus size={16} />
-                        </button>
+                    return (
+                      <div key={key} className="flex justify-between items-center py-2 border-t border-gray-200">
+                        <span className="text-sm">{size}</span>
+                        <div className="flex items-center space-x-2">
+                          <button
+                            type="button"
+                            onClick={() => handleQuantityChange(size, color, -1)}
+                            className="text-gray-500 hover:text-black p-1 border border-gray-300 rounded-md"
+                            disabled={quantity === 0}
+                          >
+                            <Minus size={16} />
+                          </button>
+                          <span className="w-8 text-center">{quantity}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleQuantityChange(size, color, 1)}
+                            className="text-gray-500 hover:text-black p-1 border border-gray-300 rounded-md"
+                            disabled={quantity >= maxQuantity}
+                          >
+                            <Plus size={16} />
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  )
-                })}
+                    );
+                  })
+                ) : (
+                  <div className="py-2 border-t border-gray-200 text-center text-gray-500">
+                    No hay talles disponibles
+                  </div>
+                )}
               </div>
 
               <div className="border-t border-gray-200 pt-4 mb-6">

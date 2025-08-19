@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useMemo } from "react"
 import Image from "next/image"
 import ProductModal from "./product-modal"
 import { useCart } from "@/hooks/use-cart"
@@ -10,37 +10,26 @@ export default function ProductGrid({ limit = undefined, filter = undefined }: {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const { items } = useCart()
-  const { products, loading, error, hasMore, loadMoreProducts } = useProducts()
-
-  // Referencia para el observador de intersección
-  const observerRef = useRef<IntersectionObserver | null>(null)
-  const loadMoreRef = useRef<HTMLDivElement>(null)
-
-  // Configurar el observador de intersección para carga infinita
+  const { products, allProducts, loading, error } = useProducts()
+  
+  // Log para depuración
   useEffect(() => {
-    if (observerRef.current) {
-      observerRef.current.disconnect()
+    console.log('ProductGrid - Received products:', products)
+    console.log('ProductGrid - Total products (sin filtrar):', allProducts?.length || 0)
+    console.log('ProductGrid - Filter:', filter)
+    console.log('ProductGrid - Loading state:', loading)
+    console.log('ProductGrid - Error state:', error)
+    
+    // Verificar si hay productos sin filtrar pero ninguno con el filtro actual
+    if ((products?.length || 0) === 0 && (allProducts?.length || 0) > 0 && filter) {
+      console.warn(`No hay productos para la categoría "${filter}" pero sí hay ${allProducts.length} productos sin filtrar`)
+      // Mostrar categorías disponibles para ayudar en el diagnóstico
+      const categories = [...new Set(allProducts.map(p => p.category))]
+      console.log('Categorías disponibles:', categories)
     }
+  }, [products, allProducts, filter, loading, error])
 
-    observerRef.current = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore && !loading) {
-          loadMoreProducts()
-        }
-      },
-      { threshold: 0.1 },
-    )
-
-    if (loadMoreRef.current) {
-      observerRef.current.observe(loadMoreRef.current)
-    }
-
-    return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect()
-      }
-    }
-  }, [hasMore, loading, loadMoreProducts])
+  // Ya no necesitamos el observador de intersección porque no hay paginación
 
   const handleOpenModal = (product: Product) => {
     setSelectedProduct(product)
@@ -52,7 +41,7 @@ export default function ProductGrid({ limit = undefined, filter = undefined }: {
     setSelectedProduct(null)
   }
 
-  const isInCart = (productId: number) => {
+  const isInCart = (productId: string | number) => {
     return items.some((item) => item.product.id === productId.toString())
   }
 
@@ -63,34 +52,85 @@ export default function ProductGrid({ limit = undefined, filter = undefined }: {
     return sizes.map(({ size }) => size).join("/");
   };
 
-  const displayed = products
-  .filter((product) => {
-    // Si el producto o la categoría no existen, no lo muestro en la lista filtrada
-    if (!product || !product.category) return false;
-    // Si no viene filter, no filtro y devuelvo todos
-    if (filter == null || filter === "") return true;
-    // Si filter viene definido, comparo category
-    return product.category.trim().toLowerCase() === filter.trim().toLowerCase();
-  })
-  // 2. Luego aplico el límite (si viene)
-  .slice(0, limit ?? products.length);
+  // Verificar si products es válido usando useMemo
+  const validProducts = useMemo(() => {
+    return Array.isArray(products) ? products : [];
+  }, [products]);
+  
+  // Log para depuración antes de filtrar
+  useEffect(() => {
+    if (validProducts.length === 0) {
+      console.log('No hay productos para mostrar antes del filtrado')
+    } else {
+      console.log(`Hay ${validProducts.length} productos antes del filtrado`)
+      // Mostrar algunos ejemplos de los productos
+      console.log('Ejemplos de productos:', validProducts.slice(0, 2))
+    }
+  }, [validProducts])
+  
+  // Usamos useMemo para el filtrado de productos
+  const displayed = useMemo(() => {
+    return validProducts
+      .filter((product) => {
+        // Validación más estricta
+        if (!product) {
+          console.log('Producto inválido encontrado, filtrando')
+          return false;
+        }
+        if (!product.category) {
+          console.log(`Producto sin categoría: ${product.id} - ${product.name}`)
+          return false;
+        }
+        
+        // Si no viene filter, no filtro y devuelvo todos
+        if (filter == null || filter === "") {
+          return true;
+        }
+        
+        // Si filter viene definido, comparo category
+        const match = product.category.trim().toLowerCase() === filter.trim().toLowerCase();
+        return match;
+      })
+      // Luego aplico el límite (si viene)
+      .slice(0, limit ?? validProducts.length);
+  }, [validProducts, filter, limit]);
 
-
-
+  // Log después del filtrado
+  useEffect(() => {
+    console.log(`Después del filtrado quedan ${displayed.length} productos para mostrar`)
+  }, [displayed])
 
   if (error) {
     return <div className="text-center py-10 text-red-500">Error: {error}</div>
   }
+  
+  if (loading) {
+    return <div className="text-center py-10">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+      <p className="mt-4">Cargando productos...</p>
+    </div>
+  }
+  
+  if (validProducts.length === 0 && !loading) {
+    return <div className="text-center py-10">
+      <p>No se encontraron productos. Por favor intenta más tarde.</p>
+    </div>
+  }
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
-      {displayed.map((product) => {
+      {displayed.length === 0 ? (
+        <div className="col-span-full text-center py-10">
+          <p>No se encontraron productos{filter ? ` en la categoría ${filter}` : ''}.</p>
+        </div>
+      ) : (
+        displayed.map((product) => {
 
         return (
           <div key={product.id} className="group relative">
             <div className="relative aspect-square overflow-hidden bg-gray-100">
               <Image
-                src={product.images?.img1 || "/placeholder.svg?height=400&width=300"}
+                src={product.img1 || "/placeholder.svg?height=400&width=300"}
                 alt={product.name || `Product ${product.id}`}
                 fill
                 className="object-cover object-center group-hover:opacity-75 transition-opacity"
@@ -109,11 +149,6 @@ export default function ProductGrid({ limit = undefined, filter = undefined }: {
               </div>
               <div className="flex flex-col gap-3">
                 <p className="text-sm font-medium text-gray-900">Precio normal: ARS {(product.price ?? 0).toLocaleString()}</p>
-                {product.curvePrice && (
-                  <p className="text-sm font-medium text-gray-900">
-                    Precio curva completa: ARS {product.curvePrice.toLocaleString()}
-                  </p>
-                )}
                 <p className="text-sm font-medium text-gray-900">Talles: {formatSizes(product.sizes)}</p>
               </div>
             </div>
@@ -140,32 +175,37 @@ export default function ProductGrid({ limit = undefined, filter = undefined }: {
             )}
           </div>
         )
-      })}
+      }))
+      }
 
-      {/* Elemento para detectar cuando el usuario llega al final y cargar más productos */}
-      {hasMore && (
-        <div ref={loadMoreRef} className="col-span-full h-20 flex items-center justify-center">
-          {loading && <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>}
-        </div>
-      )}
+      {/* Ya no necesitamos el detector de scroll infinito porque eliminamos la paginación */}
 
       {isModalOpen && selectedProduct && (
         <ProductModal
           product={{
             id: selectedProduct.id.toString(),
-            title: selectedProduct.name,
-            price: `ARS ${selectedProduct.price.toLocaleString()}`,
-            priceNumeric: selectedProduct.price,
-            curvePrice: selectedProduct.curvePrice ?? 0,
-            category: selectedProduct.category,
+            title: selectedProduct.name || 'Producto sin nombre',
+            price: `ARS ${(selectedProduct.price || 0).toLocaleString()}`,
+            priceNumeric: selectedProduct.price || 0,
+            // Añadir un precio de curva adecuado para evitar errores en el componente modal
+            // Usando el mismo precio normal como valor por defecto si no se especifica
+            curvePrice: ('curvePrice' in selectedProduct ? (selectedProduct as {curvePrice: number}).curvePrice : selectedProduct.price) || 0,
+            category: selectedProduct.category || 'Sin categoría',
             isNew: selectedProduct.specialTag === "new",
-            images: selectedProduct.images,
-            image: selectedProduct.images?.img1 || "/placeholder.svg?height=400&width=300",
-            sizes: selectedProduct.sizes.map((size) => ({
-              size: size.size,
-              quantity: size.quantity,
-              color: "default", // Añadido para cumplir con el tipo SizeOption
-            })),
+            images: { 
+              img1: selectedProduct.img1 || "/placeholder.svg?height=400&width=300", 
+              img2: selectedProduct.img2 || "", 
+              img3: selectedProduct.img3 || "" 
+            },
+            image: selectedProduct.img1 || "/placeholder.svg?height=400&width=300",
+            sizes: Array.isArray(selectedProduct.sizes) 
+              ? selectedProduct.sizes.map((size) => ({
+                  size: size.size || 'U',
+                  // Asegurarnos de que quantity sea un número válido para permitir añadir al carrito
+                  quantity: typeof size.quantity === 'number' ? size.quantity : 10, // Valor por defecto si no tiene quantity
+                  color: "default", // Añadido para cumplir con el tipo SizeOption
+                }))
+              : [{ size: 'U', quantity: 10, color: "default" }], // Cantidad por defecto para permitir añadir al carrito
           }}
           onClose={handleCloseModal}
           isOpen={isModalOpen}

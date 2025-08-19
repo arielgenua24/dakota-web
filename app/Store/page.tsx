@@ -1,19 +1,24 @@
-// app/store/page.tsx
+"use client"
 
+// app/store/page.tsx
 import Navbar from "@/components/navbar"
 import ProductGrid from "@/components/product-grid"
-import { StoreProps } from "@/types"
 import { ChevronLeft } from "lucide-react";
 import { Playfair_Display } from "next/font/google"
 import CategorySlider from "@/components/category-slider"
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 const playfair = Playfair_Display({ subsets: ["latin"] })
 
 
-export default function StorePage({ searchParams }: StoreProps) {
-  // Extraemos los valores crudos
-  const { filter, limit: limitParam } = searchParams
+export default function StorePage() {
+  // Usamos el hook useSearchParams para obtener los parámetros de la URL
+  const searchParams = useSearchParams();
+  
+  // Extraemos los valores crudos de forma segura
+  const filter = searchParams.get("category") || undefined;
+  const limitParam = searchParams.get("limit");
 
   // Parseamos limit a número si viene, o undefined
   const limit = limitParam ? parseInt(limitParam) : undefined
