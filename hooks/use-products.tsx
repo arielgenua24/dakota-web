@@ -1,7 +1,9 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { useSearchParams } from "next/navigation"
+import { doc, getDoc } from "firebase/firestore"
+import { db } from "@/lib/firebase-cache"
 
 export type ProductSize = {
   size: number | string
@@ -19,118 +21,91 @@ export type Product = {
     img3: string
   }
   price: number
+  curvePrice?: number
   state: string
   sizes: ProductSize[]
 }
 
-type PaginationData = {
-  total: number
-  page: number
-  limit: number
-  totalPages: number
-}
-
-type ProductsResponse = {
-  products: Product[]
-  pagination: PaginationData
-}
-
 export const useProducts = () => {
-  const [products, setProducts] = useState<Product[]>([])
+  const [allProducts, setAllProducts] = useState<Product[]>([])
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [pagination, setPagination] = useState<PaginationData>({
-    total: 0,
-    page: 1,
-    limit: 12,
-    totalPages: 0,
-  })
+  const [docIndex, setDocIndex] = useState(1)
+  const [hasMore, setHasMore] = useState(true)
 
   const searchParams = useSearchParams()
+  const category = searchParams.get("category") || undefined
 
-  const fetchProducts = useCallback(async (page = 1, limit = 12, category?: string) => {
+  // Usamos una ref para evitar que fetchProducts se recree innecesariamente
+  const hasMoreRef = useRef(hasMore);
+  useEffect(() => {
+    hasMoreRef.current = hasMore;
+  }, [hasMore]);
+
+  const fetchProducts = useCallback(async (index: number) => {
+    if (!hasMoreRef.current) return;
     setLoading(true)
     setError(null)
 
     try {
-      // Construir la URL con parámetros de consulta
-      let url = `/api/products?page=${page}&limit=${limit}`
-      if (category) {
-        url += `&category=${category}`
-      }
+      const docRef = doc(db, "cached_products", `parsed_data_${index}`)
+      const docSnap = await getDoc(docRef)
 
-      const response = await fetch(url)
-
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status}`)
-      }
-
-      const data: ProductsResponse = await response.json()
-
-      // Verificar si hay productos en sessionStorage
-      const storedProducts = sessionStorage.getItem("products")
-
-      const storedCategory = sessionStorage.getItem("category");
-
-      // Si la categoría cambió, es la primera página, o no hay productos guardados, reiniciamos la lista.
-      if (category !== storedCategory || page === 1 || !storedProducts) {
-        setProducts(data.products);
-        sessionStorage.setItem("products", JSON.stringify(data.products));
-        // Guardamos la categoría actual para futuras comparaciones.
-        if (category) {
-          sessionStorage.setItem("category", category);
-        } else {
-          sessionStorage.removeItem("category");
-        }
+      if (docSnap.exists()) {
+        const data = docSnap.data()
+        // Convertir el mapa de productos a un array
+        const newProducts: Product[] = Object.values(data)
+        setAllProducts(prev => [...prev, ...newProducts])
+        setDocIndex(index + 1)
       } else {
-        // Si estamos en la misma categoría y no es la primera página, añadimos productos (scroll infinito).
-        const existingProducts = JSON.parse(storedProducts);
-        const updatedProducts = [...existingProducts, ...data.products];
-        setProducts(updatedProducts);
-        sessionStorage.setItem("products", JSON.stringify(updatedProducts));
+        // No hay más documentos para cargar
+        setHasMore(false)
       }
-
-      setPagination(data.pagination)
     } catch (err) {
-      console.error("Error fetching products:", err)
+      console.error("Error fetching products from Firestore:", err)
       if (err instanceof Error) {
         setError(err.message)
       } else {
         setError("An unknown error occurred")
       }
-
-      // Intentar cargar desde sessionStorage si la API falla
-      const cachedProducts = sessionStorage.getItem("products")
-      if (cachedProducts) {
-        setProducts(JSON.parse(cachedProducts))
-      }
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, []) // Eliminamos hasMore de las dependencias
 
-  // Cargar productos cuando cambian los parámetros de búsqueda
+  // Efecto para la carga inicial y cambios de categoría
   useEffect(() => {
-    const page = Number.parseInt(searchParams.get("page") || "1", 10)
-    const category = searchParams.get("category") || undefined
+    setAllProducts([]);
+    setFilteredProducts([]);
+    setDocIndex(1);
+    setHasMore(true);
+    // Reiniciamos y volvemos a cargar desde el principio cuando cambia la categoría
+    // Esto asegura que el fetch se ejecute con el estado reiniciado.
+    fetchProducts(1);
+  }, [category, fetchProducts]); // Se ejecuta al inicio y si cambia la categoría
 
-    fetchProducts(page, pagination.limit, category)
-  }, [searchParams, fetchProducts, pagination.limit])
-
-
+  // Efecto para filtrar productos cuando cambia la categoría o se cargan nuevos productos
+  useEffect(() => {
+    if (category) {
+      const filtered = allProducts.filter(p => p.category === category)
+      setFilteredProducts(filtered)
+    } else {
+      setFilteredProducts(allProducts)
+    }
+  }, [category, allProducts])
 
   const loadMoreProducts = useCallback(() => {
-    if (pagination.page < pagination.totalPages && !loading) {
-      fetchProducts(pagination.page + 1, pagination.limit)
+    if (!loading && hasMore) {
+      fetchProducts(docIndex)
     }
-  }, [pagination, loading, fetchProducts])
+  }, [loading, hasMore, docIndex, fetchProducts])
 
   return {
-    products,
+    products: filteredProducts,
     loading,
     error,
-    pagination,
+    hasMore,
     loadMoreProducts,
-    fetchProducts,
   }
 }

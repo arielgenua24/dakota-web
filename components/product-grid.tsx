@@ -4,15 +4,13 @@ import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
 import ProductModal from "./product-modal"
 import { useCart } from "@/hooks/use-cart"
-import { useProducts, type Product } from "@/hooks/use-products"
+import { useProducts, type Product, type ProductSize } from "@/hooks/use-products"
 
 export default function ProductGrid({ limit = undefined, filter = undefined }: { limit?: number, filter?: string }) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const { items, addItem } = useCart()
-  const { products, loading, error, pagination, loadMoreProducts } = useProducts()
-  console.log("consolelog de products")
-  console.log(products)
+  const { items } = useCart()
+  const { products, loading, error, hasMore, loadMoreProducts } = useProducts()
 
   // Referencia para el observador de intersección
   const observerRef = useRef<IntersectionObserver | null>(null)
@@ -26,7 +24,7 @@ export default function ProductGrid({ limit = undefined, filter = undefined }: {
 
     observerRef.current = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && pagination.page < pagination.totalPages && !loading) {
+        if (entries[0].isIntersecting && hasMore && !loading) {
           loadMoreProducts()
         }
       },
@@ -42,7 +40,7 @@ export default function ProductGrid({ limit = undefined, filter = undefined }: {
         observerRef.current.disconnect()
       }
     }
-  }, [pagination, loading, loadMoreProducts])
+  }, [hasMore, loading, loadMoreProducts])
 
   const handleOpenModal = (product: Product) => {
     setSelectedProduct(product)
@@ -58,33 +56,18 @@ export default function ProductGrid({ limit = undefined, filter = undefined }: {
     return items.some((item) => item.product.id === productId.toString())
   }
 
-  // Convertir el producto de Firestore al formato que espera el carrito
-  const convertToCartProduct = (product: Product) => {
-    return {
-      id: product.id.toString(),
-      title: product.name,
-      price: `ARS ${product.price.toLocaleString()}`,
-      priceNumeric: product.price,
-      curvePrice: product.curvePrice,
-      sizes: product.sizes.map((size) => ({
-        size: size.size,
-        color: "default",
-        quantity: size.quantity,
-      })),
-      image: product.images?.img1 || "/placeholder.svg?height=400&width=300",
-      image2: product.images?.img2,
-      image3: product.images?.img3,
-      category: product.category,
-      isNew: product.specialTag === "new",
+  const formatSizes = (sizes: ProductSize[]): string => {
+    if (!Array.isArray(sizes)) {
+      return ""; // Devuelve una cadena vacía si los talles no están definidos
     }
-  }
-  
-const formatSizes = (sizes: { size: number; quantity: number }[]): string =>
-  sizes.map(({ size }) => size).join("/");
+    return sizes.map(({ size }) => size).join("/");
+  };
 
   const displayed = products
   .filter((product) => {
-    // Si no hay filtro, devuelvo todos los productos
+    // Si el producto o la categoría no existen, no lo muestro en la lista filtrada
+    if (!product || !product.category) return false;
+    // Si no viene filter, no filtro y devuelvo todos
     if (filter == null || filter === "") return true;
     // Si filter viene definido, comparo category
     return product.category.trim().toLowerCase() === filter.trim().toLowerCase();
@@ -102,14 +85,13 @@ const formatSizes = (sizes: { size: number; quantity: number }[]): string =>
   return (
     <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
       {displayed.map((product) => {
-        const cartProduct = convertToCartProduct(product)
 
         return (
           <div key={product.id} className="group relative">
             <div className="relative aspect-square overflow-hidden bg-gray-100">
               <Image
-                src={product.images.img1 || "/placeholder.svg?height=400&width=300"}
-                alt={product.name}
+                src={product.images?.img1 || "/placeholder.svg?height=400&width=300"}
+                alt={product.name || `Product ${product.id}`}
                 fill
                 className="object-cover object-center group-hover:opacity-75 transition-opacity"
                 loading="lazy"
@@ -126,8 +108,12 @@ const formatSizes = (sizes: { size: number; quantity: number }[]): string =>
                 <p className="mt-1 text-sm text-gray-500">{product.category}</p>
               </div>
               <div className="flex flex-col gap-3">
-                <p className="text-sm font-medium text-gray-900">Precio normal: ARS {product.price.toLocaleString()}</p>
-               <p className="text-sm font-medium text-gray-900">Precio curva completa: ARS {product.curvePrice.toLocaleString()}</p>
+                <p className="text-sm font-medium text-gray-900">Precio normal: ARS {(product.price ?? 0).toLocaleString()}</p>
+                {product.curvePrice && (
+                  <p className="text-sm font-medium text-gray-900">
+                    Precio curva completa: ARS {product.curvePrice.toLocaleString()}
+                  </p>
+                )}
                 <p className="text-sm font-medium text-gray-900">Talles: {formatSizes(product.sizes)}</p>
               </div>
             </div>
@@ -157,14 +143,33 @@ const formatSizes = (sizes: { size: number; quantity: number }[]): string =>
       })}
 
       {/* Elemento para detectar cuando el usuario llega al final y cargar más productos */}
-      {pagination.page < pagination.totalPages && (
+      {hasMore && (
         <div ref={loadMoreRef} className="col-span-full h-20 flex items-center justify-center">
           {loading && <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>}
         </div>
       )}
 
       {isModalOpen && selectedProduct && (
-        <ProductModal product={convertToCartProduct(selectedProduct)} onClose={handleCloseModal} isOpen={isModalOpen} />
+        <ProductModal
+          product={{
+            id: selectedProduct.id.toString(),
+            title: selectedProduct.name,
+            price: `ARS ${selectedProduct.price.toLocaleString()}`,
+            priceNumeric: selectedProduct.price,
+            curvePrice: selectedProduct.curvePrice ?? 0,
+            category: selectedProduct.category,
+            isNew: selectedProduct.specialTag === "new",
+            images: selectedProduct.images,
+            image: selectedProduct.images?.img1 || "/placeholder.svg?height=400&width=300",
+            sizes: selectedProduct.sizes.map((size) => ({
+              size: size.size,
+              quantity: size.quantity,
+              color: "default", // Añadido para cumplir con el tipo SizeOption
+            })),
+          }}
+          onClose={handleCloseModal}
+          isOpen={isModalOpen}
+        />
       )}
     </div>
   )
