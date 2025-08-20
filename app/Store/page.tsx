@@ -11,9 +11,9 @@ import Link from "next/link";
 const playfair = Playfair_Display({ subsets: ["latin"] })
 
 
-export default function StorePage({ searchParams }: StoreProps) {
-  // Extraemos los valores crudos
-  const { filter, limit: limitParam } = searchParams
+export default async function StorePage({ searchParams }: StoreProps) {
+  // Extraemos los valores crudos (await requerido)
+  const { filter, limit: limitParam } = await searchParams
 
   // Parseamos limit a número si viene, o undefined
   const limit = limitParam ? parseInt(limitParam) : undefined

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import { fetchCachedProducts } from "../lib/firebaseCache"
 import { useSearchParams } from "next/navigation"
 
 export type ProductSize = {
@@ -53,19 +54,9 @@ export const useProducts = () => {
     setError(null)
 
     try {
-      // Construir la URL con parámetros de consulta
-      let url = `/api/products?page=${page}&limit=${limit}`
-      if (category) {
-        url += `&category=${category}`
-      }
-
-      const response = await fetch(url)
-
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status}`)
-      }
-
-      const data: ProductsResponse = await response.json()
+      // Obtener productos desde la caché Firestore
+      const data: ProductsResponse = await fetchCachedProducts(page, limit, category)
+      console.log("[useProducts] fetched", data.products.length, "products (page", page, ")")
 
       // Verificar si hay productos en sessionStorage
       const storedProducts = sessionStorage.getItem("products")

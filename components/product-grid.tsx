@@ -65,7 +65,7 @@ export default function ProductGrid({ limit = undefined, filter = undefined }: {
       title: product.name,
       price: `ARS ${product.price.toLocaleString()}`,
       priceNumeric: product.price,
-      curvePrice: product.curvePrice,
+      curvePrice: product.curvePrice ?? product.price,
       sizes: product.sizes.map((size) => ({
         size: size.size,
         color: "default",
@@ -127,7 +127,7 @@ const formatSizes = (sizes: { size: number; quantity: number }[]): string =>
               </div>
               <div className="flex flex-col gap-3">
                 <p className="text-sm font-medium text-gray-900">Precio normal: ARS {product.price.toLocaleString()}</p>
-               <p className="text-sm font-medium text-gray-900">Precio curva completa: ARS {product.curvePrice.toLocaleString()}</p>
+               <p className="text-sm font-medium text-gray-900">Precio curva completa: ARS {(product.curvePrice ?? product.price).toLocaleString()}</p>
                 <p className="text-sm font-medium text-gray-900">Talles: {formatSizes(product.sizes)}</p>
               </div>
             </div>

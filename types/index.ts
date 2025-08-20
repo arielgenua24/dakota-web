@@ -32,8 +32,9 @@ export interface CartItem {
 }
 
 export interface StoreProps {
-  searchParams: {
+  // Desde Next.js 15, searchParams es una Promise que debe ser awaited.
+  searchParams: Promise<{
     filter?: string;
     limit?: string;
-  };
+  }>;
 }

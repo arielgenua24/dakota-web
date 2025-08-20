@@ -265,9 +265,7 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
                         <span className="w-6 text-center">{quantity}</span>
                         <button
                           onClick={() => handleQuantityChange(sizeOption.size, sizeOption.color, 1)}
-                          className="text-gray-500 hover:text-black"
-                          disabled={quantity >= sizeOption.quantity}
-                        >
+                          className="text-gray-500 hover:text-black"                        >
                           <Plus size={16} />
                         </button>
                       </div>
