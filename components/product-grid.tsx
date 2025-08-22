@@ -9,7 +9,7 @@ import { useProducts, type Product } from "@/hooks/use-products"
 export default function ProductGrid({ limit = undefined, filter = undefined }: { limit?: number, filter?: string }) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const { items, addItem } = useCart()
+  const { items } = useCart()
   const { products, loading, error, pagination, loadMoreProducts } = useProducts()
   console.log("consolelog de products")
   console.log(products)
@@ -24,16 +24,21 @@ export default function ProductGrid({ limit = undefined, filter = undefined }: {
       observerRef.current.disconnect()
     }
 
+    // Deshabilitar scroll infinito cuando se usa "limit" (p.ej. sección Home)
+    if (limit !== undefined) {
+      return
+    }
+
     observerRef.current = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && pagination.page < pagination.totalPages && !loading) {
           loadMoreProducts()
         }
       },
-      { threshold: 0.1 },
+      { threshold: 0 },
     )
 
-    if (loadMoreRef.current) {
+    if (loadMoreRef.current && pagination.page < pagination.totalPages) {
       observerRef.current.observe(loadMoreRef.current)
     }
 
@@ -42,7 +47,7 @@ export default function ProductGrid({ limit = undefined, filter = undefined }: {
         observerRef.current.disconnect()
       }
     }
-  }, [pagination, loading, loadMoreProducts])
+  }, [pagination, loading, loadMoreProducts, limit])
 
   const handleOpenModal = (product: Product) => {
     setSelectedProduct(product)
@@ -59,35 +64,42 @@ export default function ProductGrid({ limit = undefined, filter = undefined }: {
   }
 
   // Convertir el producto de Firestore al formato que espera el carrito
+  type ProductMaybeCurve = Product & { curvePrice?: number }
   const convertToCartProduct = (product: Product) => {
+    const curvePrice = (product as ProductMaybeCurve).curvePrice ?? product.price
     return {
       id: product.id.toString(),
       title: product.name,
       price: `ARS ${product.price.toLocaleString()}`,
       priceNumeric: product.price,
-      curvePrice: product.curvePrice ?? product.price,
+      curvePrice,
       sizes: product.sizes.map((size) => ({
         size: size.size,
         color: "default",
         quantity: size.quantity,
       })),
       image: product.images?.img1 || "/placeholder.svg?height=400&width=300",
-      image2: product.images?.img2,
-      image3: product.images?.img3,
+      images: {
+        img1: product.images?.img1,
+        img2: product.images?.img2,
+        img3: product.images?.img3,
+      },
       category: product.category,
       isNew: product.specialTag === "new",
     }
   }
   
-const formatSizes = (sizes: { size: number; quantity: number }[]): string =>
-  sizes.map(({ size }) => size).join("/");
+const formatSizes = (sizes: { size: number | string; quantity: number }[]): string =>
+  sizes.map(({ size }) => String(size)).join("/");
+
+  const normalizedFilter = filter?.trim().toLowerCase()
+  const isAll = normalizedFilter === undefined || normalizedFilter === "" || normalizedFilter === "todos" || normalizedFilter === "todos los productos" || normalizedFilter === "all"
 
   const displayed = products
   .filter((product) => {
-    // Si no hay filtro, devuelvo todos los productos
-    if (filter == null || filter === "") return true;
-    // Si filter viene definido, comparo category
-    return product.category.trim().toLowerCase() === filter.trim().toLowerCase();
+    // Tratar "Todos los productos" como sin filtro
+    if (isAll) return true
+    return product.category.trim().toLowerCase() === normalizedFilter
   })
   // 2. Luego aplico el límite (si viene)
   .slice(0, limit ?? products.length);
@@ -102,8 +114,6 @@ const formatSizes = (sizes: { size: number; quantity: number }[]): string =>
   return (
     <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
       {displayed.map((product) => {
-        const cartProduct = convertToCartProduct(product)
-
         return (
           <div key={product.id} className="group relative">
             <div className="relative aspect-square overflow-hidden bg-gray-100">
@@ -127,7 +137,7 @@ const formatSizes = (sizes: { size: number; quantity: number }[]): string =>
               </div>
               <div className="flex flex-col gap-3">
                 <p className="text-sm font-medium text-gray-900">Precio normal: ARS {product.price.toLocaleString()}</p>
-               <p className="text-sm font-medium text-gray-900">Precio curva completa: ARS {(product.curvePrice ?? product.price).toLocaleString()}</p>
+                <p className="text-sm font-medium text-gray-900">Precio curva completa: ARS {(((product as ProductMaybeCurve).curvePrice ?? product.price)).toLocaleString()}</p>
                 <p className="text-sm font-medium text-gray-900">Talles: {formatSizes(product.sizes)}</p>
               </div>
             </div>
@@ -156,11 +166,23 @@ const formatSizes = (sizes: { size: number; quantity: number }[]): string =>
         )
       })}
 
-      {/* Elemento para detectar cuando el usuario llega al final y cargar más productos */}
-      {pagination.page < pagination.totalPages && (
-        <div ref={loadMoreRef} className="col-span-full h-20 flex items-center justify-center">
-          {loading && <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>}
-        </div>
+      {/* Infinite scroll UI (only when no limit and there are more pages) */}
+      {limit === undefined && pagination.page < pagination.totalPages && (
+        <>
+          {/* Invisible sentinel to trigger loading next chunk */}
+          <div
+            ref={loadMoreRef}
+            className="col-span-full h-1 opacity-0 pointer-events-none"
+            aria-hidden="true"
+          />
+
+          {/* Visible loader */}
+          {loading && (
+            <div className="col-span-full h-20 flex items-center justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+            </div>
+          )}
+        </>
       )}
 
       {isModalOpen && selectedProduct && (

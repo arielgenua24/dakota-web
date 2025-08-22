@@ -127,11 +127,11 @@ export default function ProductModal({ product, isOpen, onClose }: ProductModalP
     onClose()
   }
   
-  // Get product images (in a real app, these would come from the product data)
+  // Get product images from nested images structure
   const productImages = [
     product.image,
-    product.image2, // Duplicated for demo, would be different images in real app
-    product.image3,
+    product.images?.img2 || product.image,
+    product.images?.img3 || product.image,
   ]
 
   const nextImage = () => {

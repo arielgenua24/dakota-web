@@ -101,7 +101,7 @@ export default function Home() {
 
       {/* Products Section */}
       <section className="py-12 px-4 md:px-8 products-two-columns">
-        <h2 className={`${playfair.className} text-3xl mb-8`}>Algunos de nuestros productos mejores productos</h2>
+        <h2 className={`${playfair.className} text-3xl mb-8`}>Algunos de nuestros mejores productos</h2>
         <Suspense fallback={<p>Cargando productos...</p>}>
           <ProductGrid limit={6}/>
         </Suspense>

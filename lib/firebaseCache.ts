@@ -59,40 +59,47 @@ function getFirebaseApp() {
 export const fetchCachedProducts = async (
   page = 1,
   limit = 12,
-  category?: string,
+  _category?: string,
 ): Promise<ProductsResponse> => {
   const app = getFirebaseApp();
   const db = getFirestore(app);
+  // Referencia intencional para evitar warning de variable no usada
+  void _category;
 
-  // Leemos SOLO el documento parsed_data_1 (simplificación temporal).
-  const firstDocRef = doc(db, "cached_products", "parsed_data_1");
-  const firstSnap = await getDoc(firstDocRef);
+  // Leemos el documento correspondiente a la página actual: parsed_data_{page}
+  const docRef = doc(db, "cached_products", `parsed_data_${page}`);
+  const snap = await getDoc(docRef);
 
-  if (!firstSnap.exists()) {
-    console.warn("[firebaseCache] parsed_data_1 no existe en cached_products");
+  if (!snap.exists()) {
+    console.warn(`[firebaseCache] parsed_data_${page} no existe en cached_products`);
+    return {
+      products: [],
+      pagination: {
+        total: 0,
+        page,
+        limit,
+        totalPages: page, // No hay más páginas por cargar
+      },
+    };
   }
 
-  const raw = firstSnap.data() as { data?: unknown } | undefined;
+  const raw = snap.data() as { data?: unknown } | undefined;
   const container = raw?.data ?? raw ?? {};
 
   // Tomamos todos los valores que parezcan productos válidos.
-  let products: Product[] = Object.values(container as Record<string, unknown>).filter(
+  const products: Product[] = Object.values(container as Record<string, unknown>).filter(
     (v): v is Product => typeof v === "object" && v !== null && "id" in v && "name" in v,
   );
 
   console.log("[firebaseCache] productos parseados:", products.length);
 
-  if (category) {
-    products = products.filter((p) => p.category.toLowerCase() === category.toLowerCase());
-  }
+  // Nota: no filtramos por categoría aquí; la UI se encarga de filtrar tras cada inyección de chunk.
 
   const total = products.length;
-  const totalPages = 1; // simplificación
-  const start = (page - 1) * limit;
-  const end = start + limit;
+  const totalPages = page + 1; // Asumimos que podría existir parsed_data_{page+1}; si no, devolveremos totalPages=page en la próxima llamada
 
   return {
-    products: products.slice(start, end),
+    products, // devolvemos todo el chunk del documento
     pagination: {
       total,
       page,
