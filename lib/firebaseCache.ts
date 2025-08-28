@@ -83,8 +83,8 @@ export const fetchCachedProducts = async (
     };
   }
 
-  const raw = snap.data() as { data?: unknown } | undefined;
-  const container = raw?.data ?? raw ?? {};
+  const raw = snap.data() as { product_parsed?: Record<string, unknown> } | undefined;
+  const container = raw?.product_parsed ?? {};
 
   // Tomamos todos los valores que parezcan productos válidos.
   const products: Product[] = Object.values(container as Record<string, unknown>).filter(
