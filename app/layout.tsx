@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { CartProvider } from "@/hooks/use-cart"
-import { Analytics } from '@vercel/analytics/react';
+import { CartProvider } from "@/hooks/use-cart";
+import { Analytics } from "@vercel/analytics/react";
+import LeadCaptureModalWrapper from "@/app/components/LeadCaptureModalWrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -100,11 +101,13 @@ export const jsonLd = {
   "image": "https://i.ibb.co/9mTmj9Hd/dakota-home.png"
 };
 
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
   return (
     <html lang="es">
       <head>
@@ -133,6 +136,7 @@ export default function RootLayout({
         </noscript>
         {/* End Google Tag Manager (noscript) */}
         <CartProvider>
+          <LeadCaptureModalWrapper />
           {children}
         </CartProvider>
         <Analytics />
