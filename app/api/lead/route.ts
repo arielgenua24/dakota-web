@@ -1,10 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzXXdbFhUZhR5jaozeTcfCrg-MsSG4vjgo-osK4CJqseTDhT8xSww3IG_6_UEyTEOpjZA/exec";
+// Read sensitive URLs from environment variables (defined in .env / .env.development)
+// Do NOT expose this URL with NEXT_PUBLIC_ prefix, since it's only used on the server.
 
 export async function POST(request: NextRequest) {
   try {
     console.log("🚀 API /api/lead called");
+
+    const googleUrl = process.env.GOOGLE_APPS_SCRIPT_URL;
+    if (!googleUrl) {
+      console.error("❌ Missing env GOOGLE_APPS_SCRIPT_URL");
+      return NextResponse.json(
+        { error: "Server misconfiguration: GOOGLE_APPS_SCRIPT_URL is not set" },
+        { status: 500 }
+      );
+    }
 
     const body = await request.json();
     console.log("📝 Received body:", JSON.stringify(body, null, 2));
@@ -19,10 +29,10 @@ export async function POST(request: NextRequest) {
     };
 
     console.log("📊 Formatted data for Google Sheets:", JSON.stringify(formattedData, null, 2));
-    console.log("🔗 Sending to Google Apps Script URL:", GOOGLE_APPS_SCRIPT_URL);
+    console.log("🔗 Sending to Google Apps Script URL:", googleUrl);
 
     // Forward the formatted request to Google Apps Script
-    const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+    const response = await fetch(googleUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
