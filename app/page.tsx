@@ -9,12 +9,28 @@ import Link from "next/link"
 import WhatsappButton from "@/components/WhatsappButton";
 import { Suspense } from 'react';
 
+// Declaración de tipo para gtag
+declare global {
+  interface Window {
+    gtag: (...args: unknown[]) => void;
+  }
+}
+
 const playfair = Playfair_Display({ subsets: ["latin"] })
 const bebasNeue = Bebas_Neue({ weight: "400", subsets: ["latin"] })
 const inter = Inter({ weight: "400", subsets: ["latin"] })
 
 export default function Home() {
   const sendMessage = () => {
+    // Disparar evento de conversión de contacto a Google Ads
+    if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
+      window.gtag('event', 'conversion', {
+        'send_to': 'AW-17504961448/xFupCLKPzqYbEKiHgptB',
+        'value': 1.0,
+        'currency': 'ARS'
+      });
+    }
+
     const phoneNumber = process.env.NEXT_PUBLIC_WHATSAPP_PHONE;
     const message = "Hola! He visitado su web y quiero hablar con ustedes.";
     const encodedMessage = encodeURIComponent(message);

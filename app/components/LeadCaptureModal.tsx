@@ -17,7 +17,10 @@ const MODAL_ROOT_ID = "lead-modal-root";
 const API_PATH = "/api/lead";
 const SUBMIT_TIMEOUT = 10_000;
 
-type DataLayerWindow = Window & { dataLayer?: Array<Record<string, unknown>> };
+type DataLayerWindow = Window & { 
+  dataLayer?: Array<Record<string, unknown>>;
+  gtag?: (...args: unknown[]) => void;
+};
 type UTMParams = Partial<Record<"source" | "medium" | "campaign", string>>;
 
 type LeadFormState = {
@@ -218,12 +221,27 @@ const LeadCaptureModal = () => {
       markCaptured();
       wasSuccessful = true;
       setSubmissionState("success");
+      
+      // Disparar eventos de conversión
       if (typeof window !== "undefined") {
-        (window as DataLayerWindow).dataLayer?.push({
+        const win = window as DataLayerWindow;
+        
+        // Evento para Google Tag Manager
+        win.dataLayer?.push({
           event: "lead_submit",
           method: "modal",
         });
+        
+        // Evento de conversión para Google Ads
+        if (typeof win.gtag === 'function') {
+          win.gtag('event', 'conversion', {
+            'send_to': 'AW-17504961448/xB21CI_Jw6YbEKiHgptB',
+            'value': 1.0,
+            'currency': 'ARS'
+          });
+        }
       }
+      
       showToast("¡Listo! Te contactamos con los precios especiales.");
       closeModal();
     } catch (error) {

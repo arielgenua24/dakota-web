@@ -121,6 +121,18 @@ export default function RootLayout({
           })(window,document,'script','dataLayer','GTM-W2FF982N');`
         }} />
         {/* End Google Tag Manager */}
+        
+        {/* Google tag (gtag.js) - Google Ads */}
+        <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17504961448"></script>
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'AW-17504961448');
+          `
+        }} />
+        {/* End Google tag */}
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}

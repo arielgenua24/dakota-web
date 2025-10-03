@@ -3,6 +3,13 @@
 import { useState, useEffect } from "react"
 import { useCart } from "@/hooks/use-cart"
 
+// Declaración de tipo para dataLayer
+declare global {
+  interface Window {
+    dataLayer: Array<Record<string, unknown>>;
+  }
+}
+
 export default function FormularioCompra() {
   const [currentStep, setCurrentStep] = useState(1)
   const [formData, setFormData] = useState({
@@ -102,7 +109,28 @@ export default function FormularioCompra() {
     setCurrentStep((prev) => Math.max(prev - 1, 1))
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = (e?: React.FormEvent) => {
+    if (e) {
+      e.preventDefault();
+    }
+
+    // Disparar evento de conversión a Google Tag Manager
+    if (typeof window !== 'undefined' && window.dataLayer) {
+      window.dataLayer.push({
+        'event': 'conversion',
+        'event_category': 'checkout',
+        'event_label': 'purchase_whatsapp',
+        'value': getTotalPrice(),
+        'currency': 'ARS',
+        'transaction_id': `${Date.now()}-${formData.email}`,
+        'items': items.map(item => ({
+          'item_name': item.product.title,
+          'quantity': item.selectedSizes.reduce((acc, size) => acc + size.quantity, 0),
+          'price': item.totalPrice
+        }))
+      });
+    }
+
     const messageParts = [
       `*Nueva Compra*`,
       `*Nombre:* ${formData.nombre}`,
@@ -639,26 +667,28 @@ export default function FormularioCompra() {
               </div>
             </div>
 
-            <button
-              onClick={handleSubmit}
-              className="w-full p-3.5 bg-[#3483FA] text-white rounded-sm flex items-center justify-center gap-2 hover:bg-[#2968c8] transition-colors"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+            <form onSubmit={handleSubmit} className="w-full">
+              <button
+                type="submit"
+                className="w-full p-3.5 bg-[#3483FA] text-white rounded-sm flex items-center justify-center gap-2 hover:bg-[#2968c8] transition-colors"
               >
-                <line x1="22" y1="2" x2="11" y2="13"></line>
-                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-              </svg>
-              <span>Finalizar compra por WhatsApp</span>
-            </button>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="22" y1="2" x2="11" y2="13"></line>
+                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+                <span>Finalizar compra por WhatsApp</span>
+              </button>
+            </form>
           </div>
         )
       default:
