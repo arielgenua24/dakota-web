@@ -101,15 +101,17 @@ export default function Home() {
               >
                 HABLAR CON NOSOTROS AHORA
               </button>
-              <Link href="/Store"
-                className="h-[60px] w-[200px] border-2 border-white bg-transparent text-white transition hover:bg-white hover:text-black flex items-center justify-center"
-                style={{ fontFamily: inter.style.fontFamily, fontSize: "20px" }}
-              >
-                COMPRAR AHORA
-              </Link> */}
+              */}
               
             </div>
-            <div className="absolute left-1/2 -translate-x-1/2 -bottom-1 h-[72px] w-full max-w-[540px] rounded-full bg-white/15 border border-white/20 backdrop-blur flex items-center justify-center gap-3 text-white text-sm tracking-wide">
+            <Link
+              href="/Store"
+              className="absolute left-1/2 -translate-x-1/2 top-0 min-w-[240px] px-7 py-3 border-2 border-white/80 bg-gradient-to-r from-white via-white to-amber-50 text-black transition transform hover:-translate-y-[6px] active:translate-y-[1px] hover:shadow-[0_22px_48px_rgba(0,0,0,0.38)] shadow-[0_16px_38px_rgba(0,0,0,0.28)] flex items-center justify-center rounded-full z-10 wave-attention"
+              style={{ fontFamily: inter.style.fontFamily, fontSize: "18px", marginTop: "30px", letterSpacing: "0.04em" }}
+            >
+              VER PRODUCTOS EN OFERTA
+            </Link>
+            <div className="absolute left-1/2 -translate-x-1/2 -bottom-1 w-full max-w-[540px] rounded-full bg-white/15 border border-white/25 backdrop-blur shadow-[0_10px_30px_rgba(0,0,0,0.2)] flex items-center justify-center gap-3 text-sm tracking-wide py-3 px-4">
               <span className="text-lg">🦌</span>
               <span className={`${inter.className} text-center`}>Ropa cálida, envíos navideños y empaques listos para regalar.</span>
               <span className="text-lg">🎁</span>
