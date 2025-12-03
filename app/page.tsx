@@ -36,6 +36,16 @@ export default function Home() {
       tag: "Destacado",
     },
     {
+      src: "https://i.ibb.co/7NT5SZtY/4b031c58-4dc4-4830-8825-5b3aad0c7e08.jpg",
+      alt: "Conjunto cozy para fiestas",
+      tag: "Listo para regalar",
+    },
+    {
+      src: "https://i.ibb.co/0VpqPTSc/34463e7c-feb9-4baf-8043-6da8efeeadfc.jpg",
+      alt: "Conjunto cozy para fiestas",
+      tag: "Para una navidad especial",
+    },
+    {
       src: "https://i.ibb.co/Qjhy3qQd/Foto-20-11-25-8-34-49-p-m.jpg",
       alt: "Jeans y buzos listos para regalar",
       tag: "Edición limitada",
@@ -202,8 +212,8 @@ export default function Home() {
           </div>
           <Link
             href="/Store"
-            className="absolute left-1/2 -translate-x-1/2 top-150 px-7 py-3 rounded-80 border border-green-800 bg-white/95 text-gray-900 shadow-[0_14px_30px_rgba(14,116,144,0.2)] backdrop-blur-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(14,116,144,0.28)] focus:outline-none focus:ring-2 focus:ring-green-300 font-semibold tracking-[0.06em]"
-            style={{ fontFamily: inter.style.fontFamily, fontSize: "17px", marginTop: "80px" }}
+            className="absolute left-1/2 -translate-x-1/2 top-150 px-7 py-3 border border-green-800 bg-white/95 text-gray-900 shadow-[0_14px_30px_rgba(14,116,144,0.2)] backdrop-blur-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(14,116,144,0.28)] focus:outline-none focus:ring-2 focus:ring-green-300 font-semibold tracking-[0.06em]"
+            style={{ fontFamily: inter.style.fontFamily, fontSize: "14px", marginTop: "80px", borderRadius: "10px" }}
           >
             🎄 VER PRODUCTOS EN OFERTA
           </Link>
@@ -235,7 +245,7 @@ export default function Home() {
             “Envíos a todo Argentina, calidad inigualable y sin cobro de IVA”
           </h2>
           <p className={`${inter.className} text-base text-gray-700 max-w-3xl`}>
-            Este mes agregamos etiquetas festivas, envoltorios listos para regalar y un toque de canela en cada entrega. Queremos que tu pedido llegue con la magia de Navidad.
+            Listo para regalar. Queremos que tu pedido llegue con la magia de Navidad.
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
@@ -243,14 +253,14 @@ export default function Home() {
             <span className="text-2xl">🎄</span>
             <div>
               <p className={`${inter.className} font-semibold text-gray-900`}>Colección Cozy</p>
-              <p className={`${inter.className} text-sm text-gray-600`}>Buzos y jeans que combinan abrigo y estilo para las noches frías.</p>
+              <p className={`${inter.className} text-sm text-gray-600`}>Buzos, bermudas y jeans que combinan abrigo y estilo para las noches frías.</p>
             </div>
           </div>
           <div className="flex items-center gap-3 bg-white/80 border border-green-100 rounded-xl px-4 py-4 backdrop-blur">
             <span className="text-2xl">🎁</span>
             <div>
-              <p className={`${inter.className} font-semibold text-gray-900`}>Packaging de regalo</p>
-              <p className={`${inter.className} text-sm text-gray-600`}>Incluimos cintas, tarjetas y un detalle navideño sin costo extra.</p>
+              <p className={`${inter.className} font-semibold text-gray-900`}>Bermudas, el mejor regalo para tus clientes</p>
+              <p className={`${inter.className} text-sm text-gray-600`}>Aprovecha las promos especiales en curva completa, y preparate para vender esta navidad.</p>
             </div>
           </div>
           <div className="flex items-center gap-3 bg-white/80 border border-red-100 rounded-xl px-4 py-4 backdrop-blur">
