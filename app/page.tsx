@@ -7,8 +7,7 @@ import CategorySlider from "@/components/category-slider"
 import Navbar from "@/components/navbar"
 import Link from "next/link"
 import WhatsappButton from "@/components/WhatsappButton";
-import { Suspense } from 'react';
-import { ChristmasTreeAnimation } from "@/components/christmas-tree-animation"
+import { Suspense, useEffect, useState } from "react";
 
 // Declaración de tipo para gtag
 declare global {
@@ -29,6 +28,61 @@ export default function Home() {
     { icon: "🕯️", className: "bottom-10 right-6 animate-bounce" },
     { icon: "🧣", className: "top-24 left-1/2 -translate-x-1/2 animate-bounce" },
   ]
+
+  const carouselImages = [
+    {
+      src: "https://i.ibb.co/QjJVbKFp/Foto-3-12-25-9-05-55-a-m.jpg",
+      alt: "Look navideño destacado",
+      tag: "Destacado",
+    },
+    {
+      src: "https://i.ibb.co/Qjhy3qQd/Foto-20-11-25-8-34-49-p-m.jpg",
+      alt: "Jeans y buzos listos para regalar",
+      tag: "Edición limitada",
+    },
+    {
+      src: "https://i.ibb.co/KcTsQn9g/Foto-2-12-25-9-34-53-a-m.png",
+      alt: "Total denim con acentos rojos",
+      tag: "Favorito",
+    },
+    {
+      src: "https://i.ibb.co/bjJ1Zwsf/Foto-2-12-25-9-35-01-a-m.png",
+      alt: "Conjunto cozy para fiestas",
+      tag: "Listo para el árbol",
+    },
+  ]
+
+  const [currentSlide, setCurrentSlide] = useState(0)
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0 })
+
+  useEffect(() => {
+    const slideInterval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % carouselImages.length)
+    }, 4200)
+
+    return () => clearInterval(slideInterval)
+  }, [carouselImages.length])
+
+  useEffect(() => {
+    const updateCountdown = () => {
+      const now = new Date()
+      const thisYearTarget = new Date(now.getFullYear(), 11, 31, 23, 59, 59)
+      const target = now > thisYearTarget
+        ? new Date(now.getFullYear() + 1, 11, 31, 23, 59, 59)
+        : thisYearTarget
+      const diff = target.getTime() - now.getTime()
+      const totalHours = Math.max(0, Math.floor(diff / (1000 * 60 * 60)))
+      const days = Math.floor(totalHours / 24)
+      const hours = totalHours % 24
+
+      setTimeLeft({ days, hours })
+    }
+
+    updateCountdown()
+    const countdownInterval = setInterval(updateCountdown, 1000)
+
+    return () => clearInterval(countdownInterval)
+  }, [])
 
   const sendMessage = () => {
     // Disparar evento de conversión de contacto a Google Ads
@@ -52,10 +106,11 @@ export default function Home() {
     <main className="min-h-screen bg-white">
       <Navbar />
       {/* Hero Section */}
-      <section className="relative h-[529px] w-full mt-12 overflow-hidden">
+      <section className="relative min-h-[820px] md:min-h-[880px] w-full mt-12 overflow-hidden bg-sky-100">
         <div className="absolute inset-0">
-          <ChristmasTreeAnimation className="h-full rounded-none" />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/45 to-black/70 pointer-events-none" />
+<div
+  className="absolute inset-0 pointer-events-none bg-gradient-to-b from-gray-50 via-white to-gray-50"
+/>
         </div>
         <div className="absolute inset-0 pointer-events-none">
           {ornaments.map((item, idx) => (
@@ -75,48 +130,83 @@ export default function Home() {
             }}
           />
         </div>
-        <div className="absolute inset-0 flex flex-col items-center pt-10 px-4 space-y-3 text-white z-10">
-          <div className="flex items-center gap-3 px-4 py-2 rounded-full bg-white/15 border border-white/25 backdrop-blur">
+        <div className="absolute inset-0 flex flex-col items-center pt-10 px-4 pb-28 space-y-3 text-gray-900 z-10 relative">
+          <div className="flex items-center gap-3 px-4 py-2 rounded-full bg-white/90 border border-white/70 backdrop-blur text-gray-900 shadow-[0_10px_30px_rgba(0,0,0,0.08)]">
             <span className="text-lg">🎄</span>
-            <p className={`${inter.className} text-sm tracking-[0.15em] uppercase text-white/90`}>Navidad en Thoren</p>
+            <p className={`${inter.className} text-sm tracking-[0.15em] uppercase text-gray-900`}>Navidad en Thoren</p>
             <span className="text-lg">✨</span>
           </div>
-          <h1 className={`${bebasNeue.className} text-[31px] tracking-[0.08em] text-center`}>THOREN</h1>
-          <p className={`${inter.className} text-[19px] text-center text-white/80 max-w-xl`}>
-            Jeans y buzos mayorista, de alta calidad. Con espíritu navideño, regalos listos y detalles brillantes.
-          </p>
-          <div className="relative w-full max-w-[520px] h-[359px]">
-            {/**<Image
-              src="/images/dakota-home.png"
-              alt="Colección de moda de lujo"
-              fill
-              className="object-contain drop-shadow-[0_25px_60px_rgba(0,0,0,0.45)]"
-              priority
-            /> */}
-            <div className="absolute inset-x-0 bottom-6 flex justify-center gap-4 z-10 flex-wrap">
-              {/*<button
-                className="h-[60px] w-[200px] border-2 border-white bg-white/85 text-black transition hover:bg-white"
-                style={{ fontFamily: inter.style.fontFamily, fontSize: "16px" }}
-                onClick={sendMessage}
-              >
-                HABLAR CON NOSOTROS AHORA
-              </button>
-              */}
-              
-            </div>
-            <Link
-              href="/Store"
-              className="absolute left-1/2 -translate-x-1/2 top-0 min-w-[240px] px-7 py-3 border-2 border-white/80 bg-gradient-to-r from-white via-white to-amber-50 text-black transition transform hover:-translate-y-[6px] active:translate-y-[1px] hover:shadow-[0_22px_48px_rgba(0,0,0,0.38)] shadow-[0_16px_38px_rgba(0,0,0,0.28)] flex items-center justify-center rounded-full z-10 wave-attention"
-              style={{ fontFamily: inter.style.fontFamily, fontSize: "18px", marginTop: "30px", letterSpacing: "0.04em" }}
-            >
-              VER PRODUCTOS EN OFERTA
-            </Link>
-            <div className="absolute left-1/2 -translate-x-1/2 -bottom-1 w-full max-w-[540px] rounded-full bg-white/15 border border-white/25 backdrop-blur shadow-[0_10px_30px_rgba(0,0,0,0.2)] flex items-center justify-center gap-3 text-sm tracking-wide py-3 px-4">
-              <span className="text-lg">🦌</span>
-              <span className={`${inter.className} text-center`}>Ropa cálida, envíos navideños y empaques listos para regalar.</span>
-              <span className="text-lg">🎁</span>
+          <div className="flex flex-col items-center gap-3 text-center">
+            {/*<span className={`${bebasNeue.className} text-xs tracking-[0.32em] uppercase text-gray-500`}>
+              Thoren
+            </span>*/}
+            <p className={`${inter.className} text-[22px] sm:text-[24px] md:text-[26px] leading-[1.4] text-gray-900 max-w-2xl font-medium`}>
+              Jeans y buzos mayorista, de alta calidad.
+              <span className="block text-[18px] sm:text-[19px] md:text-[20px] font-normal text-gray-600 mt-2">
+                Con espíritu navideño, regalos listos y detalles brillantes.
+              </span>
+            </p>
+            <div className="h-px w-16 bg-gray-300/80" />
+          </div>
+          <div className="relative w-full max-w-[520px] flex flex-col items-center gap-5">
+            <div className="relative w-full overflow-hidden rounded-[18px] border border-white/40 bg-white/40 backdrop-blur-sm shadow-[0_25px_60px_rgba(0,0,0,0.28)]">
+              <div className="absolute inset-x-4 top-4 z-20 flex items-center justify-between text-[11px] uppercase tracking-[0.18em] text-gray-800">
+                <span className="flex items-center gap-2">
+                  <span>✨</span> Rotación automática
+                </span>
+                <span className="hidden sm:flex items-center gap-2 bg-white/85 border border-white/70 rounded-full px-3 py-1 shadow-[0_6px_18px_rgba(0,0,0,0.08)] text-gray-900">🎄 Colección Navidad</span>
+              </div>
+              <div className="relative h-[340px] sm:h-[420px] md:h-[460px]">
+                {carouselImages.map((item, idx) => (
+                  <div
+                    key={item.src}
+                    className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${idx === currentSlide ? "opacity-100" : "opacity-0"}`}
+                  >
+                    <img
+                      src={item.src}
+                      alt={item.alt}
+                      className="h-full w-full object-cover"
+                      loading={idx === 0 ? "eager" : "lazy"}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-black/10 to-transparent" />
+                    <div className="absolute top-5 right-5 z-20">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-white/90 px-3 py-1 text-xs text-gray-900 border border-white/70 shadow-[0_10px_30px_rgba(0,0,0,0.14)]"><span>🎁</span> {item.tag}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
+                {carouselImages.map((_, idx) => (
+                  <span
+                    key={idx}
+                    className={`h-2 w-2 rounded-full border border-gray-700 transition-all duration-300 ${idx === currentSlide ? "bg-gray-900 shadow-[0_0_0_3px_rgba(0,0,0,0.12)]" : "bg-gray-300"}`}
+                  />
+                ))}
+              </div>
+              <div className="absolute inset-x-3 bottom-0 z-20 pb-2">
+                <div className="flex items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-rose-950 via-rose-800 to-rose-600 py-3 text-gray-900 shadow-[0_18px_40px_rgba(0,0,0,0.25)] border border-white/50">
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">🎅</span>
+                    <div className="leading-tight">
+                      <p className="text-[11px] uppercase tracking-[0.2em] text-white">PROMOCION NAVIDEÑA</p>
+                      <p className="text-sm sm:text-base font-semibold text-white">Se acaba {timeLeft.days} días y {timeLeft.hours} horas</p>
+                    </div>
+                  </div>
+                  <div className="hidden sm:flex items-center gap-2 text-xs text-gray-800">
+                    <span className="h-8 w-px bg-gray-300" />
+                    <span className="rounded-full bg-white px-3 py-1 border border-gray-200 shadow-[0_6px_18px_rgba(0,0,0,0.08)]">Hasta el 31 de diciembre</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
+          <Link
+            href="/Store"
+            className="absolute left-1/2 -translate-x-1/2 top-150 px-7 py-3 rounded-80 border border-green-800 bg-white/95 text-gray-900 shadow-[0_14px_30px_rgba(14,116,144,0.2)] backdrop-blur-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(14,116,144,0.28)] focus:outline-none focus:ring-2 focus:ring-green-300 font-semibold tracking-[0.06em]"
+            style={{ fontFamily: inter.style.fontFamily, fontSize: "17px", marginTop: "80px" }}
+          >
+            🎄 VER PRODUCTOS EN OFERTA
+          </Link>
         </div>
       </section>
 
