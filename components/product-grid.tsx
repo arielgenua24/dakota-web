@@ -5,10 +5,39 @@ import Image from "next/image"
 import ProductModal from "./product-modal"
 import { useCart } from "@/hooks/use-cart"
 import { useProducts, type Product } from "@/hooks/use-products"
+import ChristmasPromoBanner, { type PromoCountdown } from "./christmas-promo-banner"
+
+const getPromoDeadline = () => {
+  const now = new Date()
+  const deadline = new Date(now.getFullYear(), 11, 26, 23, 59, 59) // 26 de diciembre 23:59
+  // Si ya pasó, corremos al siguiente año para mantener vivo el mensaje navideño
+  if (now > deadline) {
+    deadline.setFullYear(now.getFullYear() + 1)
+  }
+  return deadline
+}
+
+const calculatePromoCountdown = (): PromoCountdown => {
+  const now = new Date()
+  const deadline = getPromoDeadline()
+  const diff = deadline.getTime() - now.getTime()
+
+  if (diff <= 0) {
+    return { days: 0, hours: 0, minutes: 0, isExpired: true }
+  }
+
+  const totalMinutes = Math.floor(diff / (1000 * 60))
+  const days = Math.floor(totalMinutes / (60 * 24))
+  const hours = Math.floor((totalMinutes % (60 * 24)) / 60)
+  const minutes = totalMinutes % 60
+
+  return { days, hours, minutes, isExpired: false }
+}
 
 export default function ProductGrid({ limit = undefined, filter = undefined }: { limit?: number, filter?: string }) {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [promoCountdown, setPromoCountdown] = useState<PromoCountdown>(calculatePromoCountdown)
   const { items } = useCart()
   const { products, loading, error, pagination, loadMoreProducts } = useProducts()
   console.log("consolelog de products")
@@ -17,6 +46,14 @@ export default function ProductGrid({ limit = undefined, filter = undefined }: {
   // Referencia para el observador de intersección
   const observerRef = useRef<IntersectionObserver | null>(null)
   const loadMoreRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setPromoCountdown(calculatePromoCountdown())
+    }, 60000)
+
+    return () => clearInterval(timer)
+  }, [])
 
   // Configurar el observador de intersección para carga infinita
   useEffect(() => {
@@ -130,6 +167,7 @@ const formatSizes = (sizes: { size: number | string; quantity: number }[]): stri
                 </div>
               )}
             </div>
+            <ChristmasPromoBanner countdown={promoCountdown} />
             <div className="mt-4 flex flex-col gap-2">
               <div>
                 <h3 className="text-sm font-medium text-gray-900">{product.name}</h3>
