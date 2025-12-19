@@ -1,4 +1,4 @@
-import { initializeApp } from "firebase/app"
+import { initializeApp, getApps, getApp } from "firebase/app"
 import { getFirestore } from "firebase/firestore"
 
 const firebaseConfig = {
@@ -11,8 +11,9 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 }
 
-// Inicializar Firebase
-const app = initializeApp(firebaseConfig)
+// Inicializar Firebase solo si no existe ya
+// Esto previene el error "duplicate-app" durante hot reloading
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp()
 const db = getFirestore(app)
 
 export { db }

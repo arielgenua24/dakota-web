@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
-import ProductModal from "./product-modal"
+import { useRouter } from "next/navigation"
 import { useCart } from "@/hooks/use-cart"
 import { useProducts, type Product } from "@/hooks/use-products"
 import ChristmasPromoBanner, { type PromoCountdown } from "./christmas-promo-banner"
@@ -35,8 +35,7 @@ const calculatePromoCountdown = (): PromoCountdown => {
 }
 
 export default function ProductGrid({ limit = undefined, filter = undefined }: { limit?: number, filter?: string }) {
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const router = useRouter()
   const [promoCountdown, setPromoCountdown] = useState<PromoCountdown>(calculatePromoCountdown)
   const { items } = useCart()
   const { products, loading, error, pagination, loadMoreProducts } = useProducts()
@@ -86,60 +85,24 @@ export default function ProductGrid({ limit = undefined, filter = undefined }: {
     }
   }, [pagination, loading, loadMoreProducts, limit])
 
-  const handleOpenModal = (product: Product) => {
-    setSelectedProduct(product)
-    setIsModalOpen(true)
-  }
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false)
-    setSelectedProduct(null)
-  }
-
   const isInCart = (productId: number) => {
     return items.some((item) => item.product.id === productId.toString())
   }
 
-  // Convertir el producto de Firestore al formato que espera el carrito
-  type ProductMaybeCurve = Product & { curvePrice?: number }
-  const convertToCartProduct = (product: Product) => {
-    const curvePrice = (product as ProductMaybeCurve).curvePrice ?? product.price
-    return {
-      id: product.id.toString(),
-      title: product.name,
-      price: `ARS ${product.price.toLocaleString()}`,
-      priceNumeric: product.price,
-      curvePrice,
-      sizes: product.sizes.map((size) => ({
-        size: size.size,
-        color: "default",
-        quantity: size.quantity,
-      })),
-      image: product.images?.img1 || "/placeholder.svg?height=400&width=300",
-      images: {
-        img1: product.images?.img1,
-        img2: product.images?.img2,
-        img3: product.images?.img3,
-      },
-      category: product.category,
-      isNew: product.specialTag === "new",
-    }
-  }
-  
-const formatSizes = (sizes: { size: number | string; quantity: number }[]): string =>
-  sizes.map(({ size }) => String(size)).join("/");
+  const formatSizes = (sizes: { size: number | string; quantity: number }[]): string =>
+    sizes.map(({ size }) => String(size)).join("/");
 
   const normalizedFilter = filter?.trim().toLowerCase()
   const isAll = normalizedFilter === undefined || normalizedFilter === "" || normalizedFilter === "todos" || normalizedFilter === "todos los productos" || normalizedFilter === "all"
 
   const displayed = products
-  .filter((product) => {
-    // Tratar "Todos los productos" como sin filtro
-    if (isAll) return true
-    return product.category.trim().toLowerCase() === normalizedFilter
-  })
-  // 2. Luego aplico el límite (si viene)
-  .slice(0, limit ?? products.length);
+    .filter((product) => {
+      // Tratar "Todos los productos" como sin filtro
+      if (isAll) return true
+      return product.category.trim().toLowerCase() === normalizedFilter
+    })
+    // 2. Luego aplico el límite (si viene)
+    .slice(0, limit ?? products.length);
 
 
 
@@ -175,7 +138,7 @@ const formatSizes = (sizes: { size: number | string; quantity: number }[]): stri
               </div>
               <div className="flex flex-col gap-3">
                 <p className="text-sm font-medium text-gray-900">Precio normal: ARS {product.price.toLocaleString()}</p>
-                <p className="text-sm font-medium text-gray-900">Precio curva completa: ARS {(((product as ProductMaybeCurve).curvePrice ?? product.price)).toLocaleString()}</p>
+                <p className="text-sm font-medium text-gray-900">Precio curva completa: ARS {(((product as any).curvePrice ?? product.price)).toLocaleString()}</p>
                 <p className="text-sm font-medium text-gray-900">Talles: {formatSizes(product.sizes)}</p>
               </div>
             </div>
@@ -188,13 +151,13 @@ const formatSizes = (sizes: { size: number | string; quantity: number }[]): stri
                 >
                   Ir a carrito
                 </button>
-                <button onClick={() => handleOpenModal(product)} className="border border-black py-2 px-4 text-sm">
+                <button onClick={() => router.push(`/producto/${product.id}`)} className="border border-black py-2 px-4 text-sm">
                   Modificar
                 </button>
               </div>
             ) : (
               <button
-                onClick={() => handleOpenModal(product)}
+                onClick={() => router.push(`/producto/${product.id}`)}
                 className="mt-4 w-full bg-black text-white py-2 px-4 text-sm"
               >
                 Ver producto
@@ -221,10 +184,6 @@ const formatSizes = (sizes: { size: number | string; quantity: number }[]): stri
             </div>
           )}
         </>
-      )}
-
-      {isModalOpen && selectedProduct && (
-        <ProductModal product={convertToCartProduct(selectedProduct)} onClose={handleCloseModal} isOpen={isModalOpen} />
       )}
     </div>
   )
